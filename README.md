@@ -1,4 +1,4 @@
-# HotelReservationSystem
+# Hotel Reservation System
 
 Set Up:
 Manually create the databases in your MySQL workbench
@@ -56,13 +56,14 @@ The SQL commands are as follows:
     Foreign key (`RoomNumber`) references Rooms(`RoomNumber`) );
     
     CREATE TABLE `HotelReservationSystem`.`CleaningSchedule` (
-    `CleaningID` INT NOT NULL auto_increment,
-    `EmployeeID` INT NOT NULL,
-    `RoomNumber` INT NULL,
-    `Cleaned` TINYINT NULL,
-    PRIMARY KEY (`CleaningID`),
-    foreign key (`EmployeeID`) references Employees(`EmployeeID`),
-    foreign key (`RoomNumber`) references Rooms(`RoomNumber`));
+      `CleaningID` INT NOT NULL auto_increment,
+      `EmployeeID` INT NOT NULL,
+      `RoomNumber` INT NULL,
+      `Cleaned` TINYINT NULL  DEFAULT 0 ,
+      PRIMARY KEY (`CleaningID`),
+     foreign key (`EmployeeID`) references Employees(`EmployeeID`),
+     foreign key (`RoomNumber`) references Rooms(`RoomNumber`));
+
 
 
 Manually create the triggers in your MySQL Workbench as well:
