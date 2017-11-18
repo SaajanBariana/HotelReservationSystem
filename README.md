@@ -60,9 +60,13 @@ The SQL commands are as follows:
       `EmployeeID` INT NOT NULL,
       `RoomNumber` INT NULL,
       `Cleaned` TINYINT NULL  DEFAULT 0 ,
+      `DateCreated` DATETIME NULL DEFAULT current_timestamp,
+      `DateCompleted` DATETIME NULL,
       PRIMARY KEY (`CleaningID`),
      foreign key (`EmployeeID`) references Employees(`EmployeeID`),
      foreign key (`RoomNumber`) references Rooms(`RoomNumber`));
+
+
 
 
 
