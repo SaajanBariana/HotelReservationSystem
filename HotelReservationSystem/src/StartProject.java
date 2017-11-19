@@ -3,6 +3,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.text.SimpleDateFormat;  
+import java.util.Date; 
 
 import com.mysql.jdbc.UpdatableResultSet;
 
@@ -46,6 +48,8 @@ public class StartProject {
 				break;
 			case 10: updateCleaningSchedule();
 				break;
+			case 11: createNewCleaningEntry();
+				break;
 			default: System.out.println("Invalid entry. Please choose one of the provided numbers");
 				break;
 			}
@@ -72,7 +76,8 @@ public class StartProject {
 				+ "(7) Get Salary per Position\n"
 				+ "(8) Get the Cleaning Schedule for All Employees\n"
 				+ "(9) Get the Guests Who Do Not Currently Have A Reservation\n"
-				+ "(10) Update Cleaning Schedule\n");
+				+ "(10) Update Cleaning Schedule\n"
+				+ "(11) Create a New Cleaning Entry");
 		int result = in.nextInt();
 		return result;
 	}
@@ -111,7 +116,7 @@ public class StartProject {
 					System.out.println("Multiple Employees came up with that name:");
 					while(rs.next())
 					{
-						System.out.println("{ID: " + rs.getInt(1) + ", Name: " + rs.getString(2) + "}");
+						System.out.println("{ID: " + rs.getInt(1) + ", Name: " + rs.getString(2) + " " + rs.getString(3) + "}");
 					}
 					System.out.println("Choose the ID of the employee you want to delete:");
 					ID = in.nextInt();
@@ -120,7 +125,7 @@ public class StartProject {
 				else
 				{
 					rs.next();
-					System.out.println("ID: " + rs.getInt(1) + ", Name: " + rs.getString(2));
+					System.out.println("ID: " + rs.getInt(1) + ", Name: " + rs.getString(2) + " " + rs.getString(3));
 					ID = rs.getInt(1);
 				}
 				
@@ -145,7 +150,7 @@ public class StartProject {
 			Scanner in = new Scanner(System.in);
 			System.out.println("What type of room do you want to find the average of (Small, Medium, or Large)?");
 			size = in.nextLine();
-			System.out.println("The average for a " + size + " sized room is: " + connection.getAverageForRoomType(size) + "\n\n\n\n\n");
+			System.out.println("The average for a " + size + " sized room is: $" + connection.getAverageForRoomType(size) + "\n\n\n\n\n");
 		}
 		catch(Exception e)
 		{
@@ -235,9 +240,8 @@ public class StartProject {
 			ResultSet results = connection.getGuestsWithNoReservations();
 			while(results.next())
 			{
-				System.out.println("{UserID: " + results.getInt(1) + ", Name: " + results.getString(2) + ", Address: " 
-						+ results.getString(3) + ", Phone Number: " + results.getString(4) + ", Email: " + results.getString(5) + 
-						", Room Number: " + results.getInt(6) + ", Number of Keys: " + results.getInt(7) + "}" );
+				System.out.println("{Email: " + results.getInt(1) + ", Name: " + results.getString(2) + " " + results.getString(3) + ", Address: " 
+						+ results.getString(4) + ", Phone Number: " + results.getString(5) + "}" );
 			}
 			System.out.println("\n\n\n\n\n");
 		}
@@ -256,7 +260,7 @@ public class StartProject {
 		{
 			Scanner in = new Scanner(System.in);
 			ArrayList<Integer> rooms = getCleaningSchedules();
-			System.out.println("Please enter a Room Number you would like to be updated");
+			System.out.print("Please enter a Room Number you would like to be updated: ");
 			int room = in.nextInt();
 			while (!rooms.contains(room))
 			{
@@ -285,5 +289,72 @@ public class StartProject {
 		//have not implemented yet
 	}
 
+	/**
+	 * creates a new entry for the cleaning schedule
+	 */
+	public static void createNewCleaningEntry()
+	{
+		try
+		{
+			Scanner in = new Scanner(System.in);
+			
+			//create an array list of all the employee IDs
+			ArrayList<Integer> employeeIDs = new ArrayList<>();
+			
+			//create an array list of all the rooms numbers that are currently dirty
+			ArrayList<Integer> roomNumbers = new ArrayList<>();
+			
+			//grab a list of all the Employees
+			ResultSet employeeResults = connection.getAllEmployees();
+			
+			//Display all the Employees
+			System.out.println("Here is a list of all the Employees:");
+			while(employeeResults.next())
+			{
+				employeeIDs.add(employeeResults.getInt(1));
+				System.out.println("{EmployeeID: " + employeeResults.getInt(1)+ ", Name: " + employeeResults.getString(2) + " " + employeeResults.getString(3) + ", Address: " 
+						+ employeeResults.getString(4) + ", Phone Number: " + employeeResults.getString(5)+ ", Email: " + employeeResults.getString(6)
+						+ ", Salary: " + employeeResults.getInt(7) + ", Birthday: " + employeeResults.getDate(9) + ", Job Title: " + employeeResults.getString(10) + "}");
+			}
+			
+			//Choose an Employee ID
+			System.out.print("Choose an EmployeeID from above: ");
+			int employeeID = in.nextInt();
+			while (!employeeIDs.contains(employeeID))
+			{
+				System.out.print("There was an error with your input. Please choose a valid EmployeeID that was listed above: ");
+				employeeID = in.nextInt();
+			}
+			
+			//Display a list of all the rooms that are dirty
+			System.out.println("Here is a list of all the rooms that are currently dirty");
+			ResultSet roomResults = connection.getAllDirtyRooms();
+			while(roomResults.next())
+			{
+				roomNumbers.add(roomResults.getInt(1));
+				System.out.println("{Room Number: "+ roomResults.getInt(1) +  ", Price: " + roomResults.getInt(2) + ", Beds: " + roomResults.getInt(3) +  ", Room Type: " + roomResults.getString(4) +  ", Available: " + roomResults.getBoolean(5) + ", Clean: " + roomResults.getBoolean(6) + "}");				
+			}
+			
+			//Choose a room number from that list
+			System.out.print("Please choose a Room Number from above: ");
+			int roomNumber = in.nextInt();
+			while(!roomNumbers.contains(roomNumber))
+			{
+				System.out.println("There was an error with your input. Please choose a valid Room Number that was listed above: ");
+				roomNumber = in.nextInt();
+			}
+			
+			//Take the the employeeID and RoomNumber and insert it into the table.
+			connection.insertNewCleaningEntry(employeeID, roomNumber);
+			System.out.println("Inserting new Cleaning Data!\n");
+		}
+		catch(Exception e)
+		{
+			System.out.println("Error in displaying all the employees and creating a new Cleaning Entry: " + e);
+		}
+		
+		
+	}
 
+	
 }

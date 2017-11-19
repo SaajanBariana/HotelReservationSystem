@@ -21,7 +21,12 @@ public class DatabaseConnection {
 	private PreparedStatement getCleaningSchedulePstmnt;
 	private PreparedStatement getGuestsWithNoReservationPstmnt;
 	private PreparedStatement updateCleaningSchedulePstmnt;
+	private PreparedStatement getAllEmployeesPstmnt;
+	private PreparedStatement getAllDirtyRoomsPstmnt;
+	private PreparedStatement insertNewCleaningEntryPstmnt;
 
+
+	
 	/**
 	 * Initalize the prepared statements and creating the connection to the database
 	 */
@@ -29,7 +34,7 @@ public class DatabaseConnection {
 	{
 		String host = "jdbc:mysql://localhost:3306/HotelReservationSystem";
 		String username = "root";
-		String password = "Enter Password";
+		String password = "saajan1";
 		try{
 			con = (Connection) DriverManager.getConnection(host, username, password);
 			stmnt = (Statement) con.createStatement();
@@ -74,6 +79,17 @@ public class DatabaseConnection {
 			String updateScheduleCommand = "Update CleaningSchedule set cleaned = ? where RoomNumber = ?";
 			updateCleaningSchedulePstmnt = con.prepareStatement(updateScheduleCommand);
 			
+			//get all of the employees
+			String getAllEmployeesCommand = "Select * from Employees";
+			getAllEmployeesPstmnt = con.prepareStatement(getAllEmployeesCommand);
+			
+			//get list of all the rooms that are dirty
+			String getAllDirtyRoomsCommand = "Select * from Rooms where clean = false";
+			getAllDirtyRoomsPstmnt = con.prepareStatement(getAllDirtyRoomsCommand);
+			
+			//insert new Cleaning data
+			String insertNewCleaningCommand = "Insert into CleaningSchedule(EmployeeID, RoomNumber) values (?, ?);";
+			insertNewCleaningEntryPstmnt = con.prepareStatement(insertNewCleaningCommand);
 			
 		}
 		catch(Exception e){
@@ -111,7 +127,7 @@ public class DatabaseConnection {
 		{
 			removeEmployeePstmnt.setInt(1, employeeID);
 			removeEmployeePstmnt.executeUpdate();
-			System.out.println("Deleted the Employee from the database\n\n\n\n\n\n");
+			System.out.println("Deleted the Employee from the database\n");
 		}
 		catch(Exception e)
 		{
@@ -282,9 +298,55 @@ public class DatabaseConnection {
 		
 	}
 
+	/**
+	 * gets all of the employees from the database
+	 * @return return the employees in a result set
+	 */
+	public ResultSet getAllEmployees()
+	{
+		try
+		{
+			ResultSet results = getAllEmployeesPstmnt.executeQuery();
+			return results;
+		}
+		catch(Exception e)
+		{
+			System.out.println("Error in getting all the employees from the database: " + e);
+		}
+		return null;
+	}
 
+	/**
+	 * gets all rooms that are dirty
+	 * @return return the rooms in a result set
+	 */
+	public ResultSet getAllDirtyRooms()
+	{
+		try
+		{
+			ResultSet results = getAllDirtyRoomsPstmnt.executeQuery();
+			return results;
+		}
+		catch(Exception e)
+		{
+			System.out.println("Error in getting all the dirty rooms from the database: " + e);
+		}
+		return null;
+	}
 
-
-
+	
+	public void insertNewCleaningEntry(int employeeID, int roomNumber)
+	{
+		try
+		{
+			insertNewCleaningEntryPstmnt.setInt(1, employeeID);
+			insertNewCleaningEntryPstmnt.setInt(2,  roomNumber);
+			insertNewCleaningEntryPstmnt.execute();
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error occurred while inserting the new cleaning entry: "+ e);
+		}
+	}
 
 }
