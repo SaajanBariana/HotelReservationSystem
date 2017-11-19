@@ -4,7 +4,7 @@ Set Up:
 Manually create the databases in your MySQL workbench
 The SQL commands are as follows:
     
-   DROP DATABASE IF EXISTS HotelReservationSystem;
+    DROP DATABASE IF EXISTS HotelReservationSystem;
 
     CREATE DATABASE HotelReservationSystem;
 
@@ -25,7 +25,7 @@ The SQL commands are as follows:
     `PhoneNumber` VARCHAR(45) NULL,
     `Email` VARCHAR(50) NULL,
     `Password` Varchar(50) NULL,
-    PRIMARY KEY (`UserID`));
+    PRIMARY KEY (`Email`));
     
     CREATE TABLE `HotelReservationSystem`.`Employees` (
     `EmployeeID` INT NOT NULL AUTO_INCREMENT,
@@ -46,8 +46,8 @@ The SQL commands are as follows:
     `RoomNumber` INT NULL,
     `NumberOfKeys` INT NULL,
     PRIMARY KEY (`ReservationID`),
-    Foreign key (`UserID`) references Guests(UserID),
-    Foreign key (`RoomNumber`) references Rooms(`RoomNumber`) );
+    Foreign key (`UserID`) references Guests(UserID) on delete cascade on update cascade,
+    Foreign key (`RoomNumber`) references Rooms(`RoomNumber`) on delete cascade on update cascade);
 
     CREATE TABLE `HotelReservationSystem`.`CleaningSchedule` (
     `CleaningID` INT NOT NULL auto_increment,
@@ -55,8 +55,8 @@ The SQL commands are as follows:
     `RoomNumber` INT NULL,
     `Cleaned` TINYINT NULL,
     PRIMARY KEY (`CleaningID`),
-    foreign key (`EmployeeID`) references Employees(`EmployeeID`),
-    foreign key (`RoomNumber`) references Rooms(`RoomNumber`));
+    foreign key (`EmployeeID`) references Employees(`EmployeeID`) on delete cascade on update cascade,
+    foreign key (`RoomNumber`) references Rooms(`RoomNumber`) on delete cascade on update cascade);
 
 
 
