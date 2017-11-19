@@ -4,6 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class DatabaseConnection {
@@ -11,6 +13,11 @@ public class DatabaseConnection {
 	private Statement stmnt;
 	
 	//create all of the prepared statements 
+	private PreparedStatement reserveRoomPstmnt;
+	private PreparedStatement cancelReservationPstmnt;
+	private PreparedStatement listAvailablePstmnt;
+	private PreparedStatement occupancyStatusPstmnt;
+	private PreparedStatement loginSchedulePstmnt;
 	private PreparedStatement removeEmployeePstmnt;
 	private PreparedStatement findEmployeeByNamePstmnt;
 	private PreparedStatement getAveragePerRoomPstmnt;
@@ -38,6 +45,26 @@ public class DatabaseConnection {
 		try{
 			con = (Connection) DriverManager.getConnection(host, username, password);
 			stmnt = (Statement) con.createStatement();
+			
+			//Setting up the reserve room prepared statement
+			String reserveRoomCommand = "insert into reservation(reservationid, arrivalDate,departureDate, userEmail,roomNumber,numberofkeys) values (0, ?,?,?,?,?)";
+			reserveRoomPstmnt = con.prepareStatement(reserveRoomCommand);
+			 
+			//Setting up the cancel room prepared statement
+			String cancelReservationCommand = "Delete from Reservation where UserID = ?;";
+			cancelReservationPstmnt = con.prepareStatement (cancelReservationCommand);
+			 
+			//Setting up the list available rooms prepared statement
+			String listAvailableCommand = "Select RoomNumber From Rooms where Available= 1;";
+			listAvailablePstmnt = con.prepareStatement(listAvailableCommand);
+			 
+			//Setting up the occupancy status prepared statement
+			String occupancyStatusCommand = "Select RoomNumber, Available from Rooms;";
+			occupancyStatusPstmnt = con.prepareStatement (occupancyStatusCommand);
+			 
+			//Setting up the display employee cleaning schedule prepared statement
+			String loginScheduleCommand = "Select RoomNumbers from CleaningSchedule where EmployeeID = ?;";
+			loginSchedulePstmnt = con.prepareStatement(loginScheduleCommand);
 			
 			//setting up the removing the employee prepared statement
 			String removeEmployeeCommand = "delete from employees where EmployeeID = ?";
@@ -334,7 +361,11 @@ public class DatabaseConnection {
 		return null;
 	}
 
-	
+	/**
+	 * add a new cleaning entry
+	 * @param employeeID choose an employee id to add a cleaning entry for
+	 * @param roomNumber choose a room number to clean
+	 */
 	public void insertNewCleaningEntry(int employeeID, int roomNumber)
 	{
 		try
@@ -349,4 +380,28 @@ public class DatabaseConnection {
 		}
 	}
 
+	/**
+	 * add a reservation for a room
+	 * @param arrivalDate the day you will be arriving
+	 * @param departureDate the day you will be departuring
+	 * @param guestId the guest who made the reservation
+	 * @param roomNumber the room number they are reserving
+	 * @param numberOfKeys the number of key cards
+	 */
+	public void reserveRoom (Date arrivalDate, Date departureDate, String guestEmail, int roomNumber,int numberOfKeys){
+		try
+		{
+			reserveRoomPstmnt.setDate(1, arrivalDate);
+			reserveRoomPstmnt.setDate(2,departureDate);
+			reserveRoomPstmnt.setString(3, guestEmail);
+			reserveRoomPstmnt.setInt(4,roomNumber);
+			reserveRoomPstmnt.setInt( 5,numberOfKeys);
+			reserveRoomPstmnt.executeUpdate();
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to book a room: " + e);
+		}
+	}
+	
 }

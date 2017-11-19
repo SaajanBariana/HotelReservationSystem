@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.text.SimpleDateFormat;  
-import java.util.Date; 
+import java.sql.Date;
 
 import com.mysql.jdbc.UpdatableResultSet;
 
@@ -34,7 +34,7 @@ public class StartProject {
 				break;
 			case 3 : System.out.println("Need To Implement this feature");
 				break;
-			case 4 : System.out.println("Need To Implement this feature");
+			case 4 : reserveRoom();
 				break;
 			case 5 : System.out.println("Need To Implement this feature");
 				break;
@@ -354,6 +354,33 @@ public class StartProject {
 		}
 		
 		
+	}
+	
+	/**
+	 * Reserves a room for the given guest
+	 */
+	public static void reserveRoom ()
+	{
+		Scanner in = new Scanner (System.in);
+		System.out.println("Enter the arrival date (yyyy-mm-dd):");
+		String arrivalDate = in.nextLine();
+		System.out.println("Enter the departure date:(yyyy-mm-dd)");
+		String departureDate = in.nextLine();
+		System.out.println("Enter the guest email:");
+		String guestEmail = in.nextLine();
+		System.out.println("Enter the room number:");
+		int roomNumber = in.nextInt();
+		System.out.println("How many keys will the guest receive?");
+		int numberOfKeys = in.nextInt();
+		try
+		{
+			connection.reserveRoom(Date.valueOf(arrivalDate),Date.valueOf(departureDate),guestEmail,roomNumber,numberOfKeys);
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to book a room: " + e);
+		}
+
 	}
 
 	
