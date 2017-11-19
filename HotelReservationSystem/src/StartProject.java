@@ -1,3 +1,4 @@
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class StartProject {
 				break;
 			case 3 : System.out.println("Need To Implement this feature");
 				break;
-			case 4 : System.out.println("Need To Implement this feature");
+			case 4 : reserveRoom();
 				break;
 			case 5 : System.out.println("Need To Implement this feature");
 				break;
@@ -75,6 +76,33 @@ public class StartProject {
 				+ "(10) Update Cleaning Schedule\n");
 		int result = in.nextInt();
 		return result;
+	}
+
+	/**
+	 * Reserves a room for the given guest
+	 */
+	public static void reserveRoom ()
+	{
+		Scanner in = new Scanner (System.in);
+		System.out.println("Enter the arrival date (yyyy-mm-dd):");
+		String arrivalDate = in.nextLine();
+		System.out.println("Enter the departure date:(yyyy-mm-dd)");
+		String departureDate = in.nextLine();
+		System.out.println("Enter the guest ID:");
+		int guestId = in.nextInt();
+		System.out.println("Enter the room number:");
+		int roomNumber = in.nextInt();
+		System.out.println("How many keys will the guest receive?");
+		int numberOfKeys = in.nextInt();
+		try
+		{
+			connection.reserveRoom(Date.valueOf(arrivalDate),Date.valueOf(departureDate),guestId,roomNumber,numberOfKeys);
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to book a room: " + e);
+		}
+
 	}
 
 	/**
