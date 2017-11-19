@@ -41,7 +41,7 @@ public class DatabaseConnection {
 	{
 		String host = "jdbc:mysql://localhost:3306/HotelReservationSystem";
 		String username = "root";
-		String password = "saajan1";
+		String password = "Enter Password";
 		try{
 			con = (Connection) DriverManager.getConnection(host, username, password);
 			stmnt = (Statement) con.createStatement();
