@@ -57,6 +57,17 @@ The SQL commands are as follows:
     PRIMARY KEY (`CleaningID`),
     foreign key (`EmployeeID`) references Employees(`EmployeeID`) on delete cascade on update cascade,
     foreign key (`RoomNumber`) references Rooms(`RoomNumber`) on delete cascade on update cascade);
+    
+    Create table `HotelReservationSystem`.`ArchivedCleaningSchedule` (
+     `CleaningID` int not null,
+     `EmployeeID` int not null,
+     `RoomNumber` int not null,
+     `Cleaned` tinyint null default 1,
+     `DateCreated` Datetime not null,
+     `DateCompleted` Datetime not null,
+     Primary Key(`CleaningID`)
+    );
+
 
 
 
