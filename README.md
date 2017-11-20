@@ -42,11 +42,11 @@ The SQL commands are as follows:
     `ReservationID` INT NOT NULL AUTO_INCREMENT,
     `ArrivalDate` DATETIME NULL,
     `DepartureDate` DATETIME NULL,
-    `UserID` INT NULL,
+    `UserEmail` INT NULL,
     `RoomNumber` INT NULL,
     PRIMARY KEY (`ReservationID`),
-    Foreign key (`UserID`) references Guests(UserID),
-    Foreign key (`RoomNumber`) references Rooms(`RoomNumber`) );
+    Foreign key (`UserEmail`) references Guests(Email) on delete cascade on update cascade,
+    Foreign key (`RoomNumber`) references Rooms(`RoomNumber`) on delete cascade on update cascade);
     
     CREATE TABLE `HotelReservationSystem`.`CleaningSchedule` (
     `CleaningID` INT NOT NULL auto_increment,
