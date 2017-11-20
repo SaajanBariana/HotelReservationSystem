@@ -1,3 +1,9 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -6,7 +12,7 @@ public class DatabaseConnection {
 	private Connection con;
 	private Statement stmnt;
 	
-	//create all of the prepared statements
+	//create all of the prepared statements 
 	private PreparedStatement reserveRoomPstmnt;
 	private PreparedStatement cancelReservationPstmnt;
 	private PreparedStatement listAvailablePstmnt;
@@ -22,7 +28,12 @@ public class DatabaseConnection {
 	private PreparedStatement getCleaningSchedulePstmnt;
 	private PreparedStatement getGuestsWithNoReservationPstmnt;
 	private PreparedStatement updateCleaningSchedulePstmnt;
+	private PreparedStatement getAllEmployeesPstmnt;
+	private PreparedStatement getAllDirtyRoomsPstmnt;
+	private PreparedStatement insertNewCleaningEntryPstmnt;
 
+
+	
 	/**
 	 * Initalize the prepared statements and creating the connection to the database
 	 */
@@ -30,31 +41,31 @@ public class DatabaseConnection {
 	{
 		String host = "jdbc:mysql://localhost:3306/HotelReservationSystem";
 		String username = "root";
-		String password = "root";
+		String password = "Enter Password";
 		try{
 			con = (Connection) DriverManager.getConnection(host, username, password);
 			stmnt = (Statement) con.createStatement();
-
+			
 			//Setting up the reserve room prepared statement
-			String reserveRoomCommand = "insert into reservation(reservationid, arrivalDate,departureDate,userId,roomNumber,numberofkeys) values (0, ?,?,?,?,?)";
+			String reserveRoomCommand = "insert into reservation(reservationid, arrivalDate,departureDate, userEmail,roomNumber,numberofkeys) values (0, ?,?,?,?,?)";
 			reserveRoomPstmnt = con.prepareStatement(reserveRoomCommand);
-
+			 
 			//Setting up the cancel room prepared statement
 			String cancelReservationCommand = "Delete from Reservation where UserID = ?;";
 			cancelReservationPstmnt = con.prepareStatement (cancelReservationCommand);
-
+			 
 			//Setting up the list available rooms prepared statement
 			String listAvailableCommand = "Select RoomNumber From Rooms where Available= 1;";
 			listAvailablePstmnt = con.prepareStatement(listAvailableCommand);
-
+			 
 			//Setting up the occupancy status prepared statement
 			String occupancyStatusCommand = "Select RoomNumber, Available from Rooms;";
 			occupancyStatusPstmnt = con.prepareStatement (occupancyStatusCommand);
-
+			 
 			//Setting up the display employee cleaning schedule prepared statement
 			String loginScheduleCommand = "Select RoomNumbers from CleaningSchedule where EmployeeID = ?;";
 			loginSchedulePstmnt = con.prepareStatement(loginScheduleCommand);
-
+			
 			//setting up the removing the employee prepared statement
 			String removeEmployeeCommand = "delete from employees where EmployeeID = ?";
 			removeEmployeePstmnt = con.prepareStatement(removeEmployeeCommand);
@@ -95,6 +106,17 @@ public class DatabaseConnection {
 			String updateScheduleCommand = "Update CleaningSchedule set cleaned = ? where RoomNumber = ?";
 			updateCleaningSchedulePstmnt = con.prepareStatement(updateScheduleCommand);
 			
+			//get all of the employees
+			String getAllEmployeesCommand = "Select * from Employees";
+			getAllEmployeesPstmnt = con.prepareStatement(getAllEmployeesCommand);
+			
+			//get list of all the rooms that are dirty
+			String getAllDirtyRoomsCommand = "Select * from Rooms where clean = false";
+			getAllDirtyRoomsPstmnt = con.prepareStatement(getAllDirtyRoomsCommand);
+			
+			//insert new Cleaning data
+			String insertNewCleaningCommand = "Insert into CleaningSchedule(EmployeeID, RoomNumber) values (?, ?);";
+			insertNewCleaningEntryPstmnt = con.prepareStatement(insertNewCleaningCommand);
 			
 		}
 		catch(Exception e){
@@ -121,21 +143,7 @@ public class DatabaseConnection {
 		}
 		
 	}
-	public void reserveRoom (Date arrivalDate, Date departureDate, int guestId, int roomNumber,int numberOfKeys){
-		try
-		{
-			reserveRoomPstmnt.setDate(1, arrivalDate);
-			reserveRoomPstmnt.setDate(2,departureDate);
-			reserveRoomPstmnt.setInt(3, guestId);
-			reserveRoomPstmnt.setInt(4,roomNumber);
-			reserveRoomPstmnt.setInt( 5,numberOfKeys);
-			reserveRoomPstmnt.executeUpdate();
-		}
-		catch(Exception e)
-		{
-			System.out.println("An error has occurred when trying to book a room: " + e);
-		}
-	}
+	
 	/**
 	 * remove an Employee from the Employee table with this specific EmployeeID
 	 * @param employeeID the employeeID that is used to delete the employee from the table
@@ -146,7 +154,7 @@ public class DatabaseConnection {
 		{
 			removeEmployeePstmnt.setInt(1, employeeID);
 			removeEmployeePstmnt.executeUpdate();
-			System.out.println("Deleted the Employee from the database\n\n\n\n\n\n");
+			System.out.println("Deleted the Employee from the database\n");
 		}
 		catch(Exception e)
 		{
@@ -317,9 +325,83 @@ public class DatabaseConnection {
 		
 	}
 
+	/**
+	 * gets all of the employees from the database
+	 * @return return the employees in a result set
+	 */
+	public ResultSet getAllEmployees()
+	{
+		try
+		{
+			ResultSet results = getAllEmployeesPstmnt.executeQuery();
+			return results;
+		}
+		catch(Exception e)
+		{
+			System.out.println("Error in getting all the employees from the database: " + e);
+		}
+		return null;
+	}
 
+	/**
+	 * gets all rooms that are dirty
+	 * @return return the rooms in a result set
+	 */
+	public ResultSet getAllDirtyRooms()
+	{
+		try
+		{
+			ResultSet results = getAllDirtyRoomsPstmnt.executeQuery();
+			return results;
+		}
+		catch(Exception e)
+		{
+			System.out.println("Error in getting all the dirty rooms from the database: " + e);
+		}
+		return null;
+	}
 
+	/**
+	 * add a new cleaning entry
+	 * @param employeeID choose an employee id to add a cleaning entry for
+	 * @param roomNumber choose a room number to clean
+	 */
+	public void insertNewCleaningEntry(int employeeID, int roomNumber)
+	{
+		try
+		{
+			insertNewCleaningEntryPstmnt.setInt(1, employeeID);
+			insertNewCleaningEntryPstmnt.setInt(2,  roomNumber);
+			insertNewCleaningEntryPstmnt.execute();
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error occurred while inserting the new cleaning entry: "+ e);
+		}
+	}
 
-
-
+	/**
+	 * add a reservation for a room
+	 * @param arrivalDate the day you will be arriving
+	 * @param departureDate the day you will be departuring
+	 * @param guestId the guest who made the reservation
+	 * @param roomNumber the room number they are reserving
+	 * @param numberOfKeys the number of key cards
+	 */
+	public void reserveRoom (Date arrivalDate, Date departureDate, String guestEmail, int roomNumber,int numberOfKeys){
+		try
+		{
+			reserveRoomPstmnt.setDate(1, arrivalDate);
+			reserveRoomPstmnt.setDate(2,departureDate);
+			reserveRoomPstmnt.setString(3, guestEmail);
+			reserveRoomPstmnt.setInt(4,roomNumber);
+			reserveRoomPstmnt.setInt( 5,numberOfKeys);
+			reserveRoomPstmnt.executeUpdate();
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to book a room: " + e);
+		}
+	}
+	
 }
