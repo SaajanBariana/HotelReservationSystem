@@ -4,11 +4,10 @@ Set Up:
 Manually create the databases in your MySQL workbench
 The SQL commands are as follows:
     
-    IF EXISTS(select * from sys.databases where name='HotelReservationSystem')
-    DROP DATABASE HotelReservationSystem
     
-    CREATE DATABASE HotelReservationSystem
-    
+    DROP DATABASE IF EXISTS HotelReservationSystem;
+    CREATE DATABASE HotelReservationSystem;
+
     CREATE TABLE `HotelReservationSystem`.`Rooms` (
     `RoomNumber` INT NOT NULL AUTO_INCREMENT,
     `Price` INT NULL,
@@ -17,16 +16,16 @@ The SQL commands are as follows:
     `Available` TINYINT NULL,
     `Clean` TINYINT NULL,
     PRIMARY KEY (`RoomNumber`));
-    
+
     CREATE TABLE `HotelReservationSystem`.`Guests` (
-    `Email` INT NOT NULL AUTO_INCREMENT,
+    `Email` VARCHAR(50) NOT NULL ,
     `firstName` VARCHAR(50) NULL,
     `lastName` VARCHAR(50) NULL,
     `Address` VARCHAR(75) NULL,
     `PhoneNumber` VARCHAR(45) NULL,
     `Password` Varchar(45) NULL,
     PRIMARY KEY (`Email`));
-    
+
     CREATE TABLE `HotelReservationSystem`.`Employees` (
     `EmployeeID` INT NOT NULL AUTO_INCREMENT,
     `Name` VARCHAR(50) NULL,
@@ -37,17 +36,17 @@ The SQL commands are as follows:
     `Birthday` DATETIME NULL,
     `Position` VARCHAR(50) NULL,
     PRIMARY KEY (`EmployeeID`));
-    
+
     CREATE TABLE `HotelReservationSystem`.`Reservation` (
     `ReservationID` INT NOT NULL AUTO_INCREMENT,
     `ArrivalDate` DATETIME NULL,
     `DepartureDate` DATETIME NULL,
-    `UserEmail` INT NULL,
+    `UserEmail` VARCHAR(50) NULL,
     `RoomNumber` INT NULL,
     PRIMARY KEY (`ReservationID`),
-    Foreign key (`UserEmail`) references Guests(Email) on delete cascade on update cascade,
+    Foreign key (`UserEmail`) references Guests(`Email`) on delete cascade on update cascade,
     Foreign key (`RoomNumber`) references Rooms(`RoomNumber`) on delete cascade on update cascade);
-    
+
     CREATE TABLE `HotelReservationSystem`.`CleaningSchedule` (
     `CleaningID` INT NOT NULL auto_increment,
     `EmployeeID` INT NOT NULL,
@@ -56,7 +55,6 @@ The SQL commands are as follows:
     PRIMARY KEY (`CleaningID`),
     foreign key (`EmployeeID`) references Employees(`EmployeeID`),
     foreign key (`RoomNumber`) references Rooms(`RoomNumber`));
-
 
 Manually create the triggers in your MySQL Workbench as well:
 
