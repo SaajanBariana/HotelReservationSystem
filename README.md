@@ -19,20 +19,13 @@ The SQL commands are as follows:
     PRIMARY KEY (`RoomNumber`));
     
     CREATE TABLE `HotelReservationSystem`.`Guests` (
-    `UserID` INT NOT NULL AUTO_INCREMENT,
-    `Name` VARCHAR(50) NULL,
+    `Email` INT NOT NULL AUTO_INCREMENT,
+    `firstName` VARCHAR(50) NULL,
+    `lastName` VARCHAR(50) NULL,
     `Address` VARCHAR(75) NULL,
     `PhoneNumber` VARCHAR(45) NULL,
-    `Email` VARCHAR(50) NULL,
-    `RoomNumber` INT NULL,
-    `NumberOfKeys` INT NULL,
-    PRIMARY KEY (`UserID`),
-    INDEX `RoomNumber_idx` (`RoomNumber` ASC),
-    CONSTRAINT `RoomNumber`
-    FOREIGN KEY (`RoomNumber`)
-    REFERENCES `HotelReservationSystem`.`Rooms` (`RoomNumber`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE);
+    `Password` Varchar(45) NULL,
+    PRIMARY KEY (`Email`));
     
     CREATE TABLE `HotelReservationSystem`.`Employees` (
     `EmployeeID` INT NOT NULL AUTO_INCREMENT,
