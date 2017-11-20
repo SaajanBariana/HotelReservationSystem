@@ -1,11 +1,11 @@
-# Hotel Reservation System
+# HotelReservationSystem
 
 Set Up:
 Manually create the databases in your MySQL workbench
 The SQL commands are as follows:
     
+    
     DROP DATABASE IF EXISTS HotelReservationSystem;
-
     CREATE DATABASE HotelReservationSystem;
 
     CREATE TABLE `HotelReservationSystem`.`Rooms` (
@@ -18,15 +18,14 @@ The SQL commands are as follows:
     PRIMARY KEY (`RoomNumber`));
 
     CREATE TABLE `HotelReservationSystem`.`Guests` (
-    `UserID` INT NOT NULL AUTO_INCREMENT,
-    `FirstName` VARCHAR(50) NULL,
-    `LastName` VARCHAR(50) NULL,
+    `Email` VARCHAR(50) NOT NULL ,
+    `firstName` VARCHAR(50) NULL,
+    `lastName` VARCHAR(50) NULL,
     `Address` VARCHAR(75) NULL,
     `PhoneNumber` VARCHAR(45) NULL,
-    `Email` VARCHAR(50) NULL,
-    `Password` Varchar(50) NULL,
+    `Password` Varchar(45) NULL,
     PRIMARY KEY (`Email`));
-    
+
     CREATE TABLE `HotelReservationSystem`.`Employees` (
     `EmployeeID` INT NOT NULL AUTO_INCREMENT,
     `Name` VARCHAR(50) NULL,
@@ -37,16 +36,15 @@ The SQL commands are as follows:
     `Birthday` DATETIME NULL,
     `Position` VARCHAR(50) NULL,
     PRIMARY KEY (`EmployeeID`));
-    
+
     CREATE TABLE `HotelReservationSystem`.`Reservation` (
     `ReservationID` INT NOT NULL AUTO_INCREMENT,
     `ArrivalDate` DATETIME NULL,
     `DepartureDate` DATETIME NULL,
-    `UserID` INT NULL,
+    `UserEmail` VARCHAR(50) NULL,
     `RoomNumber` INT NULL,
-    `NumberOfKeys` INT NULL,
     PRIMARY KEY (`ReservationID`),
-    Foreign key (`UserID`) references Guests(UserID) on delete cascade on update cascade,
+    Foreign key (`UserEmail`) references Guests(`Email`) on delete cascade on update cascade,
     Foreign key (`RoomNumber`) references Rooms(`RoomNumber`) on delete cascade on update cascade);
 
     CREATE TABLE `HotelReservationSystem`.`CleaningSchedule` (
@@ -55,24 +53,8 @@ The SQL commands are as follows:
     `RoomNumber` INT NULL,
     `Cleaned` TINYINT NULL,
     PRIMARY KEY (`CleaningID`),
-    foreign key (`EmployeeID`) references Employees(`EmployeeID`) on delete cascade on update cascade,
-    foreign key (`RoomNumber`) references Rooms(`RoomNumber`) on delete cascade on update cascade);
-    
-    Create table `HotelReservationSystem`.`ArchivedCleaningSchedule` (
-     `CleaningID` int not null,
-     `EmployeeID` int not null,
-     `RoomNumber` int not null,
-     `Cleaned` tinyint null default 1,
-     `DateCreated` Datetime not null,
-     `DateCompleted` Datetime not null,
-     Primary Key(`CleaningID`)
-    );
-
-
-
-
-
-
+    foreign key (`EmployeeID`) references Employees(`EmployeeID`),
+    foreign key (`RoomNumber`) references Rooms(`RoomNumber`));
 
 Manually create the triggers in your MySQL Workbench as well:
 
