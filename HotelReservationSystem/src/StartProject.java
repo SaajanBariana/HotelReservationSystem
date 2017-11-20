@@ -33,7 +33,7 @@ public class StartProject {
 				break;
 			case 2 : System.out.println("Need To Implement this feature");
 				break;
-			case 3 : System.out.println("Need To Implement this feature");
+			case 3 : listAvailableRooms();
 				break;
 			case 4 : reserveRoom();
 				break;
@@ -83,6 +83,26 @@ public class StartProject {
 		return result;
 	}
 
+
+	public static void listAvailableRooms ()
+	{
+		System.out.println("Available Rooms: ");
+		ResultSet resultSet = connection.listAvailableRooms();
+		try
+		{
+			System.out.println("#      Price     Beds     Type     Clean");
+			while(resultSet.next()){
+			//	System.out.println(resultSet.getInt(1));
+				System.out.println(resultSet.getInt(1)+"     "+resultSet.getInt(2)+"     "
+						+ resultSet.getInt(3)+"     "+ resultSet.getString(4)+"     "+ resultSet.getInt(5)+"     "+resultSet.getInt(6));
+			}
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to view the available rooms: " + e);
+		}
+
+	}
 	/**
 	 * Reserves a room for the given guest
 	 */
@@ -93,15 +113,15 @@ public class StartProject {
 		String arrivalDate = in.nextLine();
 		System.out.println("Enter the departure date:(yyyy-mm-dd)");
 		String departureDate = in.nextLine();
-		System.out.println("Enter the guest ID:");
-		int guestId = in.nextInt();
+		System.out.println("Enter the guest email:");
+		String guestEmail = in.nextLine();
 		System.out.println("Enter the room number:");
 		int roomNumber = in.nextInt();
 		System.out.println("How many keys will the guest receive?");
 		int numberOfKeys = in.nextInt();
 		try
 		{
-			connection.reserveRoom(Date.valueOf(arrivalDate),Date.valueOf(departureDate),guestId,roomNumber,numberOfKeys);
+			connection.reserveRoom(Date.valueOf(arrivalDate),Date.valueOf(departureDate),guestEmail,roomNumber,numberOfKeys);
 		}
 		catch(Exception e)
 		{
@@ -109,7 +129,6 @@ public class StartProject {
 		}
 
 	}
-
 	/**
 	 * removes an employee from the table based on their name or their ID
 	 */
@@ -384,32 +403,7 @@ public class StartProject {
 		
 	}
 	
-	/**
-	 * Reserves a room for the given guest
-	 */
-	public static void reserveRoom ()
-	{
-		Scanner in = new Scanner (System.in);
-		System.out.println("Enter the arrival date (yyyy-mm-dd):");
-		String arrivalDate = in.nextLine();
-		System.out.println("Enter the departure date:(yyyy-mm-dd)");
-		String departureDate = in.nextLine();
-		System.out.println("Enter the guest email:");
-		String guestEmail = in.nextLine();
-		System.out.println("Enter the room number:");
-		int roomNumber = in.nextInt();
-		System.out.println("How many keys will the guest receive?");
-		int numberOfKeys = in.nextInt();
-		try
-		{
-			connection.reserveRoom(Date.valueOf(arrivalDate),Date.valueOf(departureDate),guestEmail,roomNumber,numberOfKeys);
-		}
-		catch(Exception e)
-		{
-			System.out.println("An error has occurred when trying to book a room: " + e);
-		}
 
-	}
 
 	
 }

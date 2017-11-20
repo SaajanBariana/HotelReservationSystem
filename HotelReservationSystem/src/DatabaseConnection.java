@@ -17,7 +17,7 @@ public class DatabaseConnection {
 	private PreparedStatement cancelReservationPstmnt;
 	private PreparedStatement listAvailablePstmnt;
 	private PreparedStatement occupancyStatusPstmnt;
-	private PreparedStatement loginSchedulePstmnt;
+	private PreparedStatement employeeCleaningSchedulePstmnt;
 	private PreparedStatement removeEmployeePstmnt;
 	private PreparedStatement findEmployeeByNamePstmnt;
 	private PreparedStatement getAveragePerRoomPstmnt;
@@ -41,7 +41,7 @@ public class DatabaseConnection {
 	{
 		String host = "jdbc:mysql://localhost:3306/HotelReservationSystem";
 		String username = "root";
-		String password = "Enter Password";
+		String password = "root";
 		try{
 			con = (Connection) DriverManager.getConnection(host, username, password);
 			stmnt = (Statement) con.createStatement();
@@ -51,20 +51,20 @@ public class DatabaseConnection {
 			reserveRoomPstmnt = con.prepareStatement(reserveRoomCommand);
 			 
 			//Setting up the cancel room prepared statement
-			String cancelReservationCommand = "Delete from Reservation where UserID = ?;";
+			String cancelReservationCommand = "Delete from Reservation where userEmail = ? and arrivalDate = ?";
 			cancelReservationPstmnt = con.prepareStatement (cancelReservationCommand);
 			 
 			//Setting up the list available rooms prepared statement
-			String listAvailableCommand = "Select RoomNumber From Rooms where Available= 1;";
+			String listAvailableCommand = "Select * From Rooms where Available= 1";
 			listAvailablePstmnt = con.prepareStatement(listAvailableCommand);
 			 
 			//Setting up the occupancy status prepared statement
-			String occupancyStatusCommand = "Select RoomNumber, Available from Rooms;";
+			String occupancyStatusCommand = "Select RoomNumber, Available from Rooms";
 			occupancyStatusPstmnt = con.prepareStatement (occupancyStatusCommand);
 			 
 			//Setting up the display employee cleaning schedule prepared statement
-			String loginScheduleCommand = "Select RoomNumbers from CleaningSchedule where EmployeeID = ?;";
-			loginSchedulePstmnt = con.prepareStatement(loginScheduleCommand);
+			String employeeCleaningScheduleCommand = "Select RoomNumbers from CleaningSchedule where EmployeeID = ? and cleaned = '0'";
+			employeeCleaningSchedulePstmnt = con.prepareStatement(employeeCleaningScheduleCommand);
 			
 			//setting up the removing the employee prepared statement
 			String removeEmployeeCommand = "delete from employees where EmployeeID = ?";
@@ -143,7 +143,81 @@ public class DatabaseConnection {
 		}
 		
 	}
-	
+
+	/**
+	 * Cancel a reservation for a user with the given userE-Mail and arrivalDate
+	 * @param userEmail The email of the user who made the reservation
+	 * @param arrivalDate The arrival date for the reservation
+	 */
+	public void cancelReservation (String userEmail,Date arrivalDate)
+	{
+		try
+		{
+			cancelReservationPstmnt.setString(1,userEmail);
+			cancelReservationPstmnt.setDate (2,arrivalDate);
+			cancelReservationPstmnt.executeUpdate();
+		}
+		catch (Exception e)
+		{
+			System.out.println("An error has occurred when trying to cancel a reservation: " + e);
+		}
+	}
+
+	/**
+	 * Gets the list of all available rooms
+	 * @return A result set if the query successfully executes
+	 */
+	public ResultSet listAvailableRooms ()
+	{
+		try
+		{
+			ResultSet result = listAvailablePstmnt.executeQuery();
+			return result;
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to list all available rooms: " + e);
+		}
+		return null;
+	}
+
+	/**
+	 * Lists all the rooms and their occupancy status
+	 * @return A result set of all the rooms and the occupancy status if the query successfully executes
+	 */
+	public ResultSet occupancyStatus ()
+	{
+		try
+		{
+			ResultSet result = occupancyStatusPstmnt.executeQuery();
+			return result;
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to view the occupancy status of all the rooms: " + e);
+		}
+		return null;
+	}
+
+	/**
+	 * Gets the cleaning schedule for a specific employee
+	 * @param employeeId The employee whose cleaning schedule we want
+	 * @return A result set of the cleaning schedule if the query successfully executes
+	 */
+	public ResultSet getEmployeeCleaningSchedule (int employeeId)
+	{
+		try
+		{
+			employeeCleaningSchedulePstmnt.setInt(1,employeeId);
+			ResultSet result = employeeCleaningSchedulePstmnt.executeQuery();
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to view the schedule of this employee: " + e);
+		}
+		return null;
+
+	}
 	/**
 	 * remove an Employee from the Employee table with this specific EmployeeID
 	 * @param employeeID the employeeID that is used to delete the employee from the table
@@ -384,7 +458,7 @@ public class DatabaseConnection {
 	 * add a reservation for a room
 	 * @param arrivalDate the day you will be arriving
 	 * @param departureDate the day you will be departuring
-	 * @param guestId the guest who made the reservation
+	 * @param guestEmail the guest who made the reservation
 	 * @param roomNumber the room number they are reserving
 	 * @param numberOfKeys the number of key cards
 	 */
