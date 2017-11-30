@@ -415,7 +415,7 @@ public class StartProject {
 			{
 				System.out.println("{Employee ID: " + results.getInt(1) + ", Name: " + results.getString(2) + ", Address: " + results.getString(3) + ", Phone Number: " + results.getString(4) + ", Email: "+ results.getString(5) + 
 						", Salary: " + results.getInt(6) + ", Birthday: " + results.getDate(7) + ", Position: " + results.getString(8)+ "}");
-				employeeId.add(results.getString(3));
+				employeeId.add(results.getString(1));
 			}
 			System.out.println();
 			return employeeId;
