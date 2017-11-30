@@ -29,7 +29,7 @@ public class StartProject {
 			case 0: removeEmployee();
 				break;
 			//add other options
-			case 1 : System.out.println("Need To Implement this feature");
+			case 1 : createAccount();
 				break;
 			case 2 : System.out.println("Need To Implement this feature");
 				break;
@@ -102,6 +102,78 @@ public class StartProject {
 			System.out.println("An error has occurred when trying to view the available rooms: " + e);
 		}
 
+	}
+	/**
+	 * Creates a Guest or Employee account
+	 */
+	public static void createAccount ()
+	{
+		Scanner in = new Scanner (System.in);
+		System.out.println("Which account would you like to create?\n" 
+		+ "(0) Guest\n"
+		+ "(1) Employee");
+		Integer result = in.nextInt();
+		if(result == 0){
+			addGuest();
+		}else addEmployee();
+		}
+	
+	/**
+	 * Adds a Guest account
+	 */
+	public static void addGuest ()
+	{
+		Scanner in = new Scanner (System.in);
+		System.out.println("Enter first name:");
+		String first = in.nextLine();
+		System.out.println("Enter last name:");
+		String last = in.nextLine();
+		System.out.println("Enter address:");
+		String address = in.nextLine();
+		System.out.println("Enter phone number:");
+		String phone = in.nextLine();
+		System.out.println("Enter email:");
+		String email = in.nextLine();
+		System.out.println("Enter password:");
+		String password = in.nextLine();
+		try
+		{
+			connection.addGuest(first, last, address, phone, email, password);
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to create a guest account " + e);
+		}
+	}
+	
+	/**
+	 * Adds a Employee account
+	 */
+	public static void addEmployee ()
+	{
+		Scanner in = new Scanner (System.in);
+		System.out.println("Enter name:");
+		String name = in.nextLine();
+		System.out.println("Enter address:");
+		String address = in.nextLine();
+		System.out.println("Enter phone number:");
+		String phone = in.nextLine();
+		System.out.println("Enter email:");
+		String email = in.nextLine();
+		System.out.println("Enter birthday (yyyy-mm-dd):");
+		String birthday = in.nextLine();
+		System.out.println("Enter position:");
+		String position = in.nextLine();
+		System.out.println("Enter salary:");
+		Integer salary = in.nextInt();
+		try
+		{
+			connection.addEmployee(name, address, phone, email, salary, Date.valueOf(birthday), position);
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to create a employee account " + e);
+		}
 	}
 	/**
 	 * Reserves a room for the given guest
@@ -256,6 +328,31 @@ public class StartProject {
 	 * gets all the cleaning schedules
 	 * @return returns a list of all the rooms in these schedules
 	 */
+	public static ArrayList<Integer> getReservations()
+	{
+		try 
+		{
+			ArrayList<Integer> reservations = new ArrayList<>();
+			ResultSet results = connection.getReservations();
+			while(results.next())
+			{
+				System.out.println("{rID: " + results.getInt(1) + ", ArrivalDate: " + results.getInt(2) + ", DepartureDate: " + results.getInt(3) + ", UserID: " + results.getBoolean(4)+ ", RoomNumber: " + results.getInt(5)+"}");
+				reservations.add(results.getInt(1));
+			}
+			System.out.println();
+			return reservations;
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to display the Reservation " + e);
+		}
+		return null;
+	}
+	
+	/**
+	 * gets all the cleaning schedules
+	 * @return returns a list of all the rooms in these schedules
+	 */
 	public static ArrayList<Integer> getCleaningSchedules()
 	{
 		try 
@@ -321,6 +418,39 @@ public class StartProject {
 			getCleaningSchedules();
 			System.out.println();
 			
+		}
+		catch(Exception e)
+		{
+			System.out.println("Error in trying to display the changes made in Cleaning Schedule: " + e);
+		}
+	}
+	
+	/**
+	 * updates a Cleaning Schedule tuple based on the room number
+	 */
+	public static void updateReservation()
+	{
+		try
+		{
+			Scanner in = new Scanner(System.in);
+			ArrayList<Integer> reservations = getReservations();
+			System.out.println("Please enter a Reservation Number you would like to be updated");
+			int resNum = in.nextInt();
+			while (!reservations.contains(resNum))
+			{
+				System.out.println("Invalid Entry. Please enter a valid Reservation Number you would like to be updated");
+				resNum = in.nextInt();
+			}
+			System.out.println("Enter an arrival date: ");
+			String newArrival = in.nextLine();
+			System.out.println("Enter a departure date: ");
+			String newDeparture = in.nextLine();
+			System.out.println("Enter a room number: ");
+			int roomNum = in.nextInt();
+			connection.updateReservation(Date.valueOf(newArrival), Date.valueOf(newDeparture), roomNum);;
+			System.out.println();
+			getReservations();
+			System.out.println();
 		}
 		catch(Exception e)
 		{

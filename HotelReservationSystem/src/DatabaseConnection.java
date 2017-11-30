@@ -27,10 +27,14 @@ public class DatabaseConnection {
 	private PreparedStatement getPositionsPstmnt;
 	private PreparedStatement getCleaningSchedulePstmnt;
 	private PreparedStatement getGuestsWithNoReservationPstmnt;
+	private PreparedStatement updateReservationPstmnt;
 	private PreparedStatement updateCleaningSchedulePstmnt;
 	private PreparedStatement getAllEmployeesPstmnt;
 	private PreparedStatement getAllDirtyRoomsPstmnt;
 	private PreparedStatement insertNewCleaningEntryPstmnt;
+	private PreparedStatement addEmployeePstmnt;
+	private PreparedStatement addGuestPstmnt;
+	private PreparedStatement getReservationsPstmnt;
 
 
 	
@@ -41,7 +45,7 @@ public class DatabaseConnection {
 	{
 		String host = "jdbc:mysql://localhost:3306/HotelReservationSystem";
 		String username = "root";
-		String password = "root";
+		String password = "botdbotd1";
 		try{
 			con = (Connection) DriverManager.getConnection(host, username, password);
 			stmnt = (Statement) con.createStatement();
@@ -49,7 +53,19 @@ public class DatabaseConnection {
 			//Setting up the reserve room prepared statement
 			String reserveRoomCommand = "insert into reservation(reservationid, arrivalDate,departureDate, userEmail,roomNumber,numberofkeys) values (0, ?,?,?,?,?)";
 			reserveRoomPstmnt = con.prepareStatement(reserveRoomCommand);
+			
+			//Setting up the add employee prepared statement
+			String addEmployeeCommand = "insert into Employees(EmployeeID, Name, Address, PhoneNumber, Email, Salary, Birthday, Position) values (0, ?,?,?,?,?,?,?)";
+			addEmployeePstmnt = con.prepareStatement(addEmployeeCommand);
+			
+			//Setting up the add guest prepared statement
+			String addGuestCommand = "insert into Guests(FirstName, LastName, Address, PhoneNumber, Email, Password) values (?,?,?,?,?,?)";
+			addGuestPstmnt = con.prepareStatement(addGuestCommand);
 			 
+			//getting all reservations
+			String getReservationsCommand = "Select * from Reservation;";
+			getReservationsPstmnt = con.prepareStatement(getReservationsCommand);
+			
 			//Setting up the cancel room prepared statement
 			String cancelReservationCommand = "Delete from Reservation where userEmail = ? and arrivalDate = ?";
 			cancelReservationPstmnt = con.prepareStatement (cancelReservationCommand);
@@ -113,6 +129,10 @@ public class DatabaseConnection {
 			//get list of all the rooms that are dirty
 			String getAllDirtyRoomsCommand = "Select * from Rooms where clean = false";
 			getAllDirtyRoomsPstmnt = con.prepareStatement(getAllDirtyRoomsCommand);
+			
+			//updating a Reservation
+			String updateReservationCommand = "Update Reservation set ArrivalDate = ?, set DepartureDate = ?, set RoomNumber = ?, where rID = ?";
+			updateReservationPstmnt = con.prepareStatement(updateReservationCommand);
 			
 			//insert new Cleaning data
 			String insertNewCleaningCommand = "Insert into CleaningSchedule(EmployeeID, RoomNumber) values (?, ?);";
@@ -362,6 +382,24 @@ public class DatabaseConnection {
 	}
 	
 	/**
+	 * returns all of the entries in the Reservation table
+	 * @return returns the result set of the reservation table
+	 */
+	public ResultSet getReservations()
+	{
+		try
+		{
+			ResultSet results = getReservationsPstmnt.executeQuery();
+			return results;
+		}
+		catch(Exception e)
+		{
+			System.out.println("Error retrieving the reservations");
+		}
+		return null;
+	}
+	
+	/**
 	 * gets all the guests who do not currently have a reservation
 	 * @return returns the result set of all the guests
 	 */
@@ -478,4 +516,54 @@ public class DatabaseConnection {
 		}
 	}
 	
+	public void addEmployee (String name, String address, String phoneNum, String email, Integer salary, Date birthday, String position){
+		try
+		{
+			addEmployeePstmnt.setString(1, name);
+			addEmployeePstmnt.setString(2, address);
+			addEmployeePstmnt.setString(3, phoneNum);
+			addEmployeePstmnt.setString(4, email);
+			addEmployeePstmnt.setInt(5, salary);
+			addEmployeePstmnt.setDate(6, birthday);
+			addEmployeePstmnt.setString(7, position);
+			addEmployeePstmnt.executeUpdate();
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to add an employee: " + e);
+		}
+	}
+	
+	public void addGuest (String first, String last, String address, String phoneNum, String email, String password){
+		try
+		{
+			addGuestPstmnt.setString(1, first);
+			addGuestPstmnt.setString(2, last);
+			addGuestPstmnt.setString(3, address);
+			addGuestPstmnt.setString(4, phoneNum);
+			addGuestPstmnt.setString(5, email);
+			addGuestPstmnt.setString(6, password);
+			addGuestPstmnt.executeUpdate();
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to add a Guest: " + e);
+		}
+	}
+
+	public void updateReservation (Date newArrival, Date newDeparture, int roomNum)
+	{
+		try
+		{
+			updateReservationPstmnt.setDate(1, newArrival);
+			updateReservationPstmnt.setDate(2, newDeparture);
+			updateReservationPstmnt.setInt(4, roomNum);
+			updateReservationPstmnt.executeUpdate();
+		}
+		catch(Exception e)
+		{
+			System.out.println("Error occurred when trying to update the Reservation: " + e);
+		}
+		
+	}
 }
