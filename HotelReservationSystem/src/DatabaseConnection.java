@@ -35,6 +35,8 @@ public class DatabaseConnection {
 	private PreparedStatement addEmployeePstmnt;
 	private PreparedStatement addGuestPstmnt;
 	private PreparedStatement getReservationsPstmnt;
+	private PreparedStatement getEmployeesPstmnt;
+	private PreparedStatement getGuestsPstmnt;
 
 
 	
@@ -65,6 +67,14 @@ public class DatabaseConnection {
 			//getting all reservations
 			String getReservationsCommand = "Select * from Reservation;";
 			getReservationsPstmnt = con.prepareStatement(getReservationsCommand);
+			
+			//getting all employees
+			String getEmployeesCommand = "Select * from Employees;";
+			getEmployeesPstmnt = con.prepareStatement(getEmployeesCommand);
+			
+			//getting all guests
+			String getGuestsCommand = "Select * from Guests;";
+			getGuestsPstmnt = con.prepareStatement(getGuestsCommand);
 			
 			//Setting up the cancel room prepared statement
 			String cancelReservationCommand = "Delete from Reservation where userEmail = ? and arrivalDate = ?";
@@ -399,6 +409,41 @@ public class DatabaseConnection {
 		return null;
 	}
 	
+	/**
+	 * returns all of the entries in the Guests table
+	 * @return returns the result set of the guests table
+	 */
+	public ResultSet getGuests()
+	{
+		try
+		{
+			ResultSet results = getGuestsPstmnt.executeQuery();
+			return results;
+		}
+		catch(Exception e)
+		{
+			System.out.println("Error retrieving guests");
+		}
+		return null;
+	}
+	
+	/**
+	 * returns all of the entries in the Guests table
+	 * @return returns the result set of the guests table
+	 */
+	public ResultSet getEmployees()
+	{
+		try
+		{
+			ResultSet results = getEmployeesPstmnt.executeQuery();
+			return results;
+		}
+		catch(Exception e)
+		{
+			System.out.println("Error retrieving employees");
+		}
+		return null;
+	}
 	/**
 	 * gets all the guests who do not currently have a reservation
 	 * @return returns the result set of all the guests

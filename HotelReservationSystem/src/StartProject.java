@@ -139,13 +139,14 @@ public class StartProject {
 		try
 		{
 			connection.addGuest(first, last, address, phone, email, password);
+			getGuests();
 		}
 		catch(Exception e)
 		{
 			System.out.println("An error has occurred when trying to create a guest account " + e);
 		}
 	}
-	
+
 	/**
 	 * Adds a Employee account
 	 */
@@ -169,6 +170,7 @@ public class StartProject {
 		try
 		{
 			connection.addEmployee(name, address, phone, email, salary, Date.valueOf(birthday), position);
+			getEmployees();
 		}
 		catch(Exception e)
 		{
@@ -370,6 +372,57 @@ public class StartProject {
 		catch(Exception e)
 		{
 			System.out.println("An error has occurred when trying to display the cleaning schedule: " + e);
+		}
+		return null;
+	}
+	
+	/**
+	 * gets all the guests
+	 * @return returns a list of all the guests
+	 */
+	public static ArrayList<String> getGuests()
+	{
+		try 
+		{
+			ArrayList<String> guestEmail = new ArrayList<>();
+			ResultSet results = connection.getGuests();
+			while(results.next())
+			{
+				System.out.println("{Email: " + results.getString(1) + ", First name: " + results.getString(2) + ", Last Name: " + results.getString(3) +"}");
+				guestEmail.add(results.getString(1));
+			}
+			System.out.println();
+			return guestEmail;
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to display the guests: " + e);
+		}
+		return null;
+	}
+	
+	/**
+	 * gets all the employees
+	 * @return returns a list of all the employees
+	 */
+	public static ArrayList<String> getEmployees()
+	{
+		try 
+		{
+			ArrayList<String> employeeId = new ArrayList<>();
+			ResultSet results = connection.getEmployees();
+			while(results.next())
+			{
+				System.out.println("{Employee ID: " + results.getInt(1) + ", Name: " + results.getString(2) + ", Address: " + results.getString(3) + ", Phone Number: " + results.getString(4) + ", Email: "+ results.getString(5) + 
+						", Salary: " + results.getInt(6) + ", Birthday: " + results.getDate(7) + ", Position: " + results.getString(8)+ "}");
+				employeeId.add(results.getString(3));
+			}
+			System.out.println();
+			return employeeId;
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to display the employees: " + e);
 		}
 		return null;
 	}
