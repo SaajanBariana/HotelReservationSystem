@@ -454,7 +454,7 @@ public class StartProject {
 		}
 		catch(Exception e)
 		{
-			System.out.println("Error in trying to display the changes made in Cleaning Schedule: " + e);
+			System.out.println("Error in trying to display the changes made in reservations: " + e);
 		}
 	}
 
