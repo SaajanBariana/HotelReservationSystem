@@ -512,14 +512,6 @@ public class StartProject {
 	}
 
 	/**
-	 * creates a reservation
-	 */
-	public static void createReservation()
-	{
-		//have not implemented yet
-	}
-
-	/**
 	 * creates a new entry for the cleaning schedule
 	 */
 	public static void createNewCleaningEntry()
