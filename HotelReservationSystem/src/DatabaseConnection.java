@@ -41,7 +41,7 @@ public class DatabaseConnection {
 
 	
 	/**
-	 * Initalize the prepared statements and creating the connection to the database
+	 * Initialize the prepared statements and creating the connection to the database
 	 */
 	public DatabaseConnection(String type)
 	{
@@ -52,108 +52,104 @@ public class DatabaseConnection {
 			con = (Connection) DriverManager.getConnection(host, username, password);
 			stmnt = (Statement) con.createStatement();
 			
-			if (type.equals("guest"))
-			{
-				//Setting up the reserve room prepared statement
-				String reserveRoomCommand = "insert into reservation(reservationid, arrivalDate,departureDate, userEmail,roomNumber,numberofkeys) values (0, ?,?,?,?,?)";
-				reserveRoomPstmnt = con.prepareStatement(reserveRoomCommand);
-				
-				//Setting up the add guest prepared statement
-				String addGuestCommand = "insert into Guests(FirstName, LastName, Address, PhoneNumber, Email, Password) values (?,?,?,?,?,?)";
-				addGuestPstmnt = con.prepareStatement(addGuestCommand);
-				
-				//getting all guests
-				String getGuestsCommand = "Select * from Guests;";
-				getGuestsPstmnt = con.prepareStatement(getGuestsCommand);
-				
-				//Setting up the cancel room prepared statement
-				String cancelReservationCommand = "Delete from Reservation where userEmail = ? and arrivalDate = ?";
-				cancelReservationPstmnt = con.prepareStatement (cancelReservationCommand);
-				 
-				//Setting up the list available rooms prepared statement
-				String listAvailableCommand = "Select * From Rooms where Available = 1";
-				listAvailablePstmnt = con.prepareStatement(listAvailableCommand);
-				 
-				//Setting up the occupancy status prepared statement
-				String occupancyStatusCommand = "Select RoomNumber, Available from Rooms";
-				occupancyStatusPstmnt = con.prepareStatement (occupancyStatusCommand);
-								
-				//setting up finding average price per type of room prepared statement
-				String findAveragePerRoomCommand = "SELECT avg(price) FROM rooms WHERE RoomType = ?;";
-				getAveragePerRoomPstmnt = con.prepareStatement(findAveragePerRoomCommand);
-				
-				//updating a Reservation
-				String updateReservationCommand = "Update Reservation set ArrivalDate = ?, set DepartureDate = ?, set RoomNumber = ?, where rID = ?";
-				updateReservationPstmnt = con.prepareStatement(updateReservationCommand);
-				
-				
-			}
-			else if (type.equals("employee"))
-			{
-				//Setting up the add employee prepared statement
-				String addEmployeeCommand = "insert into Employees(EmployeeID, Name, Address, PhoneNumber, Email, Salary, Birthday, Position) values (0, ?,?,?,?,?,?,?)";
-				addEmployeePstmnt = con.prepareStatement(addEmployeeCommand);
-				
-				//getting all reservations
-				String getReservationsCommand = "Select * from Reservation;";
-				getReservationsPstmnt = con.prepareStatement(getReservationsCommand);
-				
-				//getting all employees
-				String getEmployeesCommand = "Select * from Employees;";
-				getEmployeesPstmnt = con.prepareStatement(getEmployeesCommand);
-				
-				//Setting up the display employee cleaning schedule prepared statement
-				String employeeCleaningScheduleCommand = "Select RoomNumbers from CleaningSchedule where EmployeeID = ? and cleaned = '0'";
-				employeeCleaningSchedulePstmnt = con.prepareStatement(employeeCleaningScheduleCommand);
-				
-				//setting up the removing the employee prepared statement
-				String removeEmployeeCommand = "delete from employees where EmployeeID = ?";
-				removeEmployeePstmnt = con.prepareStatement(removeEmployeeCommand);
-				
-				//setting up the select from employee prepared statement
-				String findEmployeeCommand = "SELECT * FROM employees WHERE name = ?;";
-				findEmployeeByNamePstmnt = con.prepareStatement(findEmployeeCommand);
-				
-				//setting up finding the average salary for each position
-				String getAverageSalaryCommand = "SELECT avg(Salary) FROM Employees WHERE Position = ?;";
-				getAverageSalaryPstmnt = con.prepareStatement(getAverageSalaryCommand);
-				
-				//setting up finding the max salary for each position
-				String getMaxSalaryCommand = "SELECT max(Salary) FROM Employees WHERE Position = ?;";
-				getMaxSalaryPstmnt = con.prepareStatement(getMaxSalaryCommand);
-				
-				//setting up finding the min salary for each position
-				String getMinSalaryCommand = "SELECT min(Salary) FROM Employees WHERE Position = ?;";
-				getMinSalaryPstmnt = con.prepareStatement(getMinSalaryCommand);
-				
-				//setting up getting all the positions that are currently being held in the Employee database
-				String getPositionsCommand = "Select distinct(position) from Employees";
-				getPositionsPstmnt = con.prepareStatement(getPositionsCommand);
-				
-				//getting all the cleaning schedule information
-				String getCleaningScheduleCommand = "Select * from CleaningSchedule;";
-				getCleaningSchedulePstmnt = con.prepareStatement(getCleaningScheduleCommand);
-				
-				//getting all the guests with no reservation currently made
-				String getGuestsWithNoReservationsCommand = "Select * from Guests where Guests.UserID not in (Select distinct(UserID) from Reservation);";
-				getGuestsWithNoReservationPstmnt = con.prepareStatement(getGuestsWithNoReservationsCommand);
-				
-				//updating the Cleaning Schedule
-				String updateScheduleCommand = "Update CleaningSchedule set cleaned = ? where RoomNumber = ?";
-				updateCleaningSchedulePstmnt = con.prepareStatement(updateScheduleCommand);
-				
-				//get all of the employees
-				String getAllEmployeesCommand = "Select * from Employees";
-				getAllEmployeesPstmnt = con.prepareStatement(getAllEmployeesCommand);
-				
-				//get list of all the rooms that are dirty
-				String getAllDirtyRoomsCommand = "Select * from Rooms where clean = false";
-				getAllDirtyRoomsPstmnt = con.prepareStatement(getAllDirtyRoomsCommand);
-				
-				//insert new Cleaning data
-				String insertNewCleaningCommand = "Insert into CleaningSchedule(EmployeeID, RoomNumber) values (?, ?);";
-				insertNewCleaningEntryPstmnt = con.prepareStatement(insertNewCleaningCommand);
-			}
+			//Setting up the reserve room prepared statement
+			String reserveRoomCommand = "insert into reservation(reservationid, arrivalDate,departureDate, userEmail,roomNumber,numberofkeys) values (0, ?,?,?,?,?)";
+			reserveRoomPstmnt = con.prepareStatement(reserveRoomCommand);
+			
+			//Setting up the add guest prepared statement
+			String addGuestCommand = "insert into Guests(FirstName, LastName, Address, PhoneNumber, Email, Password) values (?,?,?,?,?,?)";
+			addGuestPstmnt = con.prepareStatement(addGuestCommand);
+			
+			//getting all guests
+			String getGuestsCommand = "Select * from Guests;";
+			getGuestsPstmnt = con.prepareStatement(getGuestsCommand);
+			
+			//Setting up the cancel room prepared statement
+			String cancelReservationCommand = "Delete from Reservation where userEmail = ? and arrivalDate = ?";
+			cancelReservationPstmnt = con.prepareStatement (cancelReservationCommand);
+			 
+			//Setting up the list available rooms prepared statement
+			String listAvailableCommand = "Select * From Rooms where Available = 1";
+			listAvailablePstmnt = con.prepareStatement(listAvailableCommand);
+			 
+			//Setting up the occupancy status prepared statement
+			String occupancyStatusCommand = "Select RoomNumber, Available from Rooms";
+			occupancyStatusPstmnt = con.prepareStatement (occupancyStatusCommand);
+							
+			//setting up finding average price per type of room prepared statement
+			String findAveragePerRoomCommand = "SELECT avg(price) FROM rooms WHERE RoomType = ?;";
+			getAveragePerRoomPstmnt = con.prepareStatement(findAveragePerRoomCommand);
+			
+			//updating a Reservation
+			String updateReservationCommand = "Update Reservation set ArrivalDate = ?, set DepartureDate = ?, set RoomNumber = ?, where rID = ?";
+			updateReservationPstmnt = con.prepareStatement(updateReservationCommand);
+			
+	
+			System.out.println("Sets up employee database");
+			//Setting up the add employee prepared statement
+			String addEmployeeCommand = "insert into Employees(EmployeeID, Name, Address, PhoneNumber, Email, Salary, Birthday, Position) values (0, ?,?,?,?,?,?,?)";
+			addEmployeePstmnt = con.prepareStatement(addEmployeeCommand);
+			
+			//getting all reservations
+			String getReservationsCommand = "Select * from Reservation;";
+			getReservationsPstmnt = con.prepareStatement(getReservationsCommand);
+			
+			//getting all employees
+			String getEmployeesCommand = "Select * from Employees;";
+			getEmployeesPstmnt = con.prepareStatement(getEmployeesCommand);
+			
+			//Setting up the display employee cleaning schedule prepared statement
+			String employeeCleaningScheduleCommand = "Select RoomNumbers from CleaningSchedule where EmployeeID = ? and cleaned = '0'";
+			employeeCleaningSchedulePstmnt = con.prepareStatement(employeeCleaningScheduleCommand);
+			
+			//setting up the removing the employee prepared statement
+			String removeEmployeeCommand = "delete from employees where EmployeeID = ?";
+			removeEmployeePstmnt = con.prepareStatement(removeEmployeeCommand);
+			
+			//setting up the select from employee prepared statement
+			String findEmployeeCommand = "SELECT * FROM employees WHERE name = ?;";
+			findEmployeeByNamePstmnt = con.prepareStatement(findEmployeeCommand);
+			
+			//setting up finding the average salary for each position
+			String getAverageSalaryCommand = "SELECT avg(Salary) FROM Employees WHERE Position = ?;";
+			getAverageSalaryPstmnt = con.prepareStatement(getAverageSalaryCommand);
+			
+			//setting up finding the max salary for each position
+			String getMaxSalaryCommand = "SELECT max(Salary) FROM Employees WHERE Position = ?;";
+			getMaxSalaryPstmnt = con.prepareStatement(getMaxSalaryCommand);
+			
+			//setting up finding the min salary for each position
+			String getMinSalaryCommand = "SELECT min(Salary) FROM Employees WHERE Position = ?;";
+			getMinSalaryPstmnt = con.prepareStatement(getMinSalaryCommand);
+			
+			//setting up getting all the positions that are currently being held in the Employee database
+			String getPositionsCommand = "Select distinct(position) from Employees";
+			getPositionsPstmnt = con.prepareStatement(getPositionsCommand);
+			
+			//getting all the cleaning schedule information
+			String getCleaningScheduleCommand = "Select * from CleaningSchedule;";
+			getCleaningSchedulePstmnt = con.prepareStatement(getCleaningScheduleCommand);
+			
+			//getting all the guests with no reservation currently made
+			String getGuestsWithNoReservationsCommand = "Select * from Guests where Guests.Email not in (Select distinct(UserEmail) from Reservation);";
+			getGuestsWithNoReservationPstmnt = con.prepareStatement(getGuestsWithNoReservationsCommand);
+			
+			//updating the Cleaning Schedule
+			String updateScheduleCommand = "Update CleaningSchedule set cleaned = ? where RoomNumber = ?";
+			updateCleaningSchedulePstmnt = con.prepareStatement(updateScheduleCommand);
+			
+			//get all of the employees
+			String getAllEmployeesCommand = "Select * from Employees";
+			getAllEmployeesPstmnt = con.prepareStatement(getAllEmployeesCommand);
+			
+			//get list of all the rooms that are dirty
+			String getAllDirtyRoomsCommand = "Select * from Rooms where clean = false";
+			getAllDirtyRoomsPstmnt = con.prepareStatement(getAllDirtyRoomsCommand);
+			
+			//insert new Cleaning data
+			String insertNewCleaningCommand = "Insert into CleaningSchedule(EmployeeID, RoomNumber) values (?, ?);";
+			insertNewCleaningEntryPstmnt = con.prepareStatement(insertNewCleaningCommand);
+			
 			
 		}
 		catch(Exception e){
@@ -172,7 +168,6 @@ public class DatabaseConnection {
 		{
 			String sqlCommand = query;
 			ResultSet result = stmnt.executeQuery(sqlCommand);
-			System.out.println("Successfully executed the SQL command");
 			return result;
 		}
 		catch(SQLException err)
@@ -466,7 +461,7 @@ public class DatabaseConnection {
 		}
 		catch(Exception e)
 		{
-			System.out.println("Error with trying to get guests who do not have any reservations");
+			System.out.println("Error with trying to get guests who do not have any reservations: " + e);
 		}
 		return null;
 	}
@@ -554,14 +549,17 @@ public class DatabaseConnection {
 	 * @param roomNumber the room number they are reserving
 	 * @param numberOfKeys the number of key cards
 	 */
-	public void reserveRoom (Date arrivalDate, Date departureDate, String guestEmail, int roomNumber,int numberOfKeys){
+	public void reserveRoom (Date arrivalDate, Date departureDate, String guestEmail, String roomNumber, String numberOfKeys){
 		try
 		{
+
 			reserveRoomPstmnt.setDate(1, arrivalDate);
 			reserveRoomPstmnt.setDate(2,departureDate);
 			reserveRoomPstmnt.setString(3, guestEmail);
-			reserveRoomPstmnt.setInt(4,roomNumber);
-			reserveRoomPstmnt.setInt( 5,numberOfKeys);
+			int num = Integer.parseInt(roomNumber);
+			int keys = Integer.parseInt(numberOfKeys.trim());
+			reserveRoomPstmnt.setInt(4,num);
+			reserveRoomPstmnt.setInt( 5,keys);
 			reserveRoomPstmnt.executeUpdate();
 		}
 		catch(Exception e)
