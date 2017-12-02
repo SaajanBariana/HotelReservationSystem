@@ -28,16 +28,17 @@ public class StartProject {
 		String password = input.nextLine();
 		UserInformation.databaseUsername = username;
 		UserInformation.databasePassword = password;
-		System.out.println("Welcome to the Max(*) Hotel Reservation System\nPlease choose an option from below:\n(0) Enter as a Guest\n(1) Enter as an Employee");
+		System.out.println("Welcome to the Max(*) Hotel Reservation System\nPlease choose an option from below:\n(1) Enter as a Guest\n(2) Enter as an Employee");
 		int choice = input.nextInt();
-		if(choice == 0)
+		if(choice == 1)
 		{
 			RunUser runAsGuest = new RunUser();
 			runAsGuest.runProgram();
 		}
 		else
 		{
-			//run as the employee
+			RunEmployee runAsEmployee = new RunEmployee();
+			runAsEmployee.runProgram();
 		}
 		
 //		int result = readInput();
@@ -122,6 +123,7 @@ public class StartProject {
 		}
 
 	}
+	
 	/**
 	 * Creates a Guest or Employee account
 	 */
@@ -196,6 +198,7 @@ public class StartProject {
 			System.out.println("An error has occurred when trying to create a employee account " + e);
 		}
 	}
+	
 	/**
 	 * Reserves a room for the given guest
 	 */
@@ -209,9 +212,9 @@ public class StartProject {
 		System.out.println("Enter the guest email:");
 		String guestEmail = in.nextLine();
 		System.out.println("Enter the room number:");
-		int roomNumber = in.nextInt();
+		String roomNumber = in.nextLine();
 		System.out.println("How many keys will the guest receive?");
-		int numberOfKeys = in.nextInt();
+		String numberOfKeys = in.nextLine();
 		try
 		{
 			connection.reserveRoom(Date.valueOf(arrivalDate),Date.valueOf(departureDate),guestEmail,roomNumber,numberOfKeys);
@@ -222,6 +225,7 @@ public class StartProject {
 		}
 
 	}
+
 	/**
 	 * removes an employee from the table based on their name or their ID
 	 */
@@ -596,8 +600,5 @@ public class StartProject {
 		
 		
 	}
-	
-
-
 	
 }

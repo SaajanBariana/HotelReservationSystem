@@ -24,15 +24,15 @@ public class RunUser {
 			switch(input)
 			{
 				//Chose to log in
-				case 0: logIn();
+				case 1: logIn();
 					choseValidNumber = true;
 					break;
 				//Chose to create an account
-				case 1: createAccount();
+				case 2: createAccount();
 					choseValidNumber = true;
 					break;
 				//Chose to quit the program
-				case 2: System.out.println("Thank you for visiting! :)");
+				case 3: System.out.println("Thank you for visiting! :)");
 					return;
 				//Chose a number that is not one of the above choices
 				default: System.out.println("Please try again with a valid number choice");
@@ -48,26 +48,30 @@ public class RunUser {
 			switch(input)
 			{
 				//Chose to create a reservation
-				case 0: System.out.println("NEED TO UPDATE AND FIX RESERVATION OF ROOMS. DISPLAY ALL THE ROOMS THAT ARE AVAILABLE DURING THAT TIME PERIOD FOR THE USER TO CHOOSE FROM. ALSO ADD A TOTAL COST AFTER CALCULATING THE TOTAL NUMBER OF DAYS THE USER IS STAYING");
+				case 1: System.out.println("NEED TO UPDATE AND FIX RESERVATION OF ROOMS. \n"
+						+ "DISPLAY ALL THE ROOMS THAT ARE AVAILABLE DURING THAT TIME PERIOD FOR THE USER TO CHOOSE FROM. \n"
+						+ "ALSO ADD A TOTAL COST AFTER CALCULATING THE TOTAL NUMBER OF DAYS THE USER IS STAYING. \n"
+						+ "DISPLAY ALL THE CURRENT RESERVATIONS FOR THIS GUEST AFTER ADDING THE NEW RESERVATION INTO THE DATABASE");
 					reserveRoom();
 					break;
 				//Chose to cancel a reservation
-				case 1: System.out.println("Need to implement cancel reservation. Prepared Statement is already created for this command");
+				case 2: System.out.println("Need to implement cancel reservation. Prepared Statement is already created for this command");
 					break;
 				//Chose to display all the available rooms
-				case 2: listAvailableRooms();
+				case 3: listAvailableRooms();
 					break;
 				//Chose to change a reservation
-				case 3: System.out.println("Need to implement changing a reservation. Prepared Statement is already created for this command");
+				case 4: System.out.println("Need to implement changing a reservation. Prepared Statement is already created for this command");
 					break;
 				//Chose to display the different pricing for different types of rooms
-				case 4: getAverageCostPerRoomType();
+				case 5: getAverageCostPerRoomType();
 					break;
 				//Chose to show all the active reservations the guest currently has
-				case 5: System.out.println("Need to implement viewing all your active reservations. Need to create a Prepared Statement for this command");
+				case 6: 
+					System.out.println("Need to implement viewing all your active reservations. Need to create a Prepared Statement for this command");
 					break;
 				//Chose to quit the program
-				case 6:
+				case 7:
 					choseValidNumber = true;
 					break;
 				//Chose a number that was not a valid choice
@@ -95,21 +99,21 @@ public class RunUser {
 			{
 				System.out.println("Welcome to the Guest Side of the Hotel Reservation System!\n"
 						+ "Which operation would you like to perform?\n"
-						+ "(0) Log In\n"
-						+ "(1) Create an Account\n"
-						+ "(2) Quit Program");
+						+ "(1) Log In\n"
+						+ "(2) Create an account\n"
+						+ "(3) Quit program");
 			}
 			else
 			{
 				System.out.println("Hello " + name +"!\n"
 						+ "What would you like to do?\n"
-						+ "(0) Create a Reservation\n"
-						+ "(1) Cancel a Reservation\n"
-						+ "(2) Display a List of All Available Rooms\n"
-						+ "(3) Change a Reservation\n"
-						+ "(4) Display Pricing for Different Types of Rooms\n"
-						+ "(5) View all of your Active Reservations\n"
-						+ "(6) Log Out\n");
+						+ "(1) Create a reservation\n"
+						+ "(2) Cancel a reservation\n"
+						+ "(3) Display a list of all available rooms\n"
+						+ "(4) Change a reservation\n"
+						+ "(5) Display pricing for different types of rooms\n"
+						+ "(6) View all of your active reservations\n"
+						+ "(7) Log Out\n");
 			}
 			try
 			{
@@ -310,9 +314,9 @@ public class RunUser {
 		
 		String guestEmail = UserInformation.ID;
 		System.out.println("Enter the room number:");
-		int roomNumber = in.nextInt();
+		String roomNumber = in.nextLine();
 		System.out.println("How many keys will the guest receive?");
-		int numberOfKeys = in.nextInt();
+		String numberOfKeys = in.nextLine();
 		try
 		{
 			connection.reserveRoom(Date.valueOf(arrivalDate),Date.valueOf(departureDate),guestEmail,roomNumber,numberOfKeys);
