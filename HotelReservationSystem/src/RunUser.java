@@ -52,7 +52,7 @@ public class RunUser {
 					reserveRoom();
 					break;
 				//Chose to cancel a reservation
-				case 1: System.out.println("Need to implement cancel reservation. Prepared Statement is already created for this command");
+				case 1: cancelReservation();
 					break;
 				//Chose to display all the available rooms
 				case 2: listAvailableRooms();
@@ -252,6 +252,7 @@ public class RunUser {
 		{
 			connection.addGuest(first, last, address, phone, email, password);
 			UserInformation.ID = email;
+			UserInformation.name = first+" "+last;
 			getGuests();
 		}
 		catch(Exception e)
@@ -368,4 +369,28 @@ public class RunUser {
 			System.out.println("An error has occurred while trying to display the average for a " + size + " room: " + e);
 		}
 	}
+
+	/**
+	 * Cancel the reservation for a given email and date
+	 */
+	public void cancelReservation()
+	{
+		Scanner in = new Scanner (System.in);
+		System.out.println("Enter the arrival date (yyyy-mm-dd):");
+		String date = in.nextLine();
+		try
+		{
+			connection.cancelReservation(UserInformation.ID,Date.valueOf(date));
+			System.out.println("Successfully canceled the reservation.");
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to cancel the reservation for "+UserInformation.ID+" on"+ date+": " + e);
+		}
+	}
+
+	/**
+	 *
+	 */
+
 }
