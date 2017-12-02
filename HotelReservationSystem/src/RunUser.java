@@ -385,11 +385,11 @@ public class RunUser {
 		try
 		{
 			connection.cancelReservation(UserInformation.ID,Date.valueOf(date));
-			System.out.println("Successfully canceled the reservation.");
+			System.out.println("Successfully cancelled the reservation.");
 		}
 		catch(Exception e)
 		{
-			System.out.println("An error has occurred when trying to cancel the reservation for "+UserInformation.ID+" on"+ date+": " + e);
+			System.out.println("An error has occurred when trying to cancel the reservation for "+UserInformation.ID+" on "+ date+": " + e);
 		}
 	}
 
