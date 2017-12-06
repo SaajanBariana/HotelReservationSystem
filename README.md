@@ -35,6 +35,7 @@ The SQL commands are as follows:
     `Salary` INT NULL,
     `Birthday` DATETIME NULL,
     `Position` VARCHAR(50) NULL,
+    `Password` Varchar(45) NULL,
     PRIMARY KEY (`EmployeeID`));
 
     CREATE TABLE `HotelReservationSystem`.`Reservation` (
