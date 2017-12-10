@@ -190,7 +190,7 @@ public class StartProject {
 		Integer salary = in.nextInt();
 		try
 		{
-			connection.addEmployee(name, address, phone, email, salary, Date.valueOf(birthday), position);
+			//connection.addEmployee(name, address, phone, email, salary, Date.valueOf(birthday), position);
 			getEmployees();
 		}
 		catch(Exception e)
@@ -502,7 +502,7 @@ public class StartProject {
 	}
 	
 	/**
-	 * updates a Cleaning Schedule tuple based on the room number
+	 * Updates a reservation
 	 */
 	public static void updateReservation()
 	{
@@ -523,7 +523,7 @@ public class StartProject {
 			String newDeparture = in.nextLine();
 			System.out.println("Enter a room number: ");
 			int roomNum = in.nextInt();
-			connection.updateReservation(Date.valueOf(newArrival), Date.valueOf(newDeparture), roomNum);;
+			connection.updateReservation(Date.valueOf(newArrival), Date.valueOf(newDeparture), roomNum, resNum);;
 			System.out.println();
 			getReservations();
 			System.out.println();

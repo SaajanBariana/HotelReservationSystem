@@ -1,3 +1,4 @@
+import javax.xml.transform.Result;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -37,9 +38,15 @@ public class DatabaseConnection {
 	private PreparedStatement getReservationsPstmnt;
 	private PreparedStatement getEmployeesPstmnt;
 	private PreparedStatement getGuestsPstmnt;
-
-
-	
+	private PreparedStatement getGuestReservationsPstmnt;
+	private PreparedStatement updateRoomAvailabilityPstmnt;
+	private PreparedStatement getRoomsPstmnt;
+	private PreparedStatement deleteGuestPstmt;
+	private PreparedStatement getEmployeesWithHigherPayPstmnt;
+	private PreparedStatement getCleanerWithLeastRoomsPstmnt;
+	private PreparedStatement getDirtyUnassignedRoomsPstmnt;
+	private PreparedStatement assignEmployeeToCleanRoomPstmnt;
+	private PreparedStatement listAvailableRoomsBetweenDatesPstmnt;
 	/**
 	 * Initialize the prepared statements and creating the connection to the database
 	 */
@@ -60,6 +67,10 @@ public class DatabaseConnection {
 			String addGuestCommand = "insert into Guests(FirstName, LastName, Address, PhoneNumber, Email, Password) values (?,?,?,?,?,?)";
 			addGuestPstmnt = con.prepareStatement(addGuestCommand);
 			
+			//Getting all the guests reservations
+			String getGuestReservatiomCommand = " Select * from Reservation where UserEmail = ?";
+			getGuestReservationsPstmnt = con.prepareStatement(getGuestReservatiomCommand);
+			
 			//getting all guests
 			String getGuestsCommand = "Select * from Guests;";
 			getGuestsPstmnt = con.prepareStatement(getGuestsCommand);
@@ -71,6 +82,10 @@ public class DatabaseConnection {
 			//Setting up the list available rooms prepared statement
 			String listAvailableCommand = "Select * From Rooms where Available = 1";
 			listAvailablePstmnt = con.prepareStatement(listAvailableCommand);
+			
+			//Getting a list of all rooms
+			String getRoomsCommand = "Select * from Rooms";
+			getRoomsPstmnt = con.prepareStatement(getRoomsCommand);
 			 
 			//Setting up the occupancy status prepared statement
 			String occupancyStatusCommand = "Select RoomNumber, Available from Rooms";
@@ -81,17 +96,16 @@ public class DatabaseConnection {
 			getAveragePerRoomPstmnt = con.prepareStatement(findAveragePerRoomCommand);
 			
 			//updating a Reservation
-			String updateReservationCommand = "Update Reservation set ArrivalDate = ?, set DepartureDate = ?, set RoomNumber = ?, where rID = ?";
+			String updateReservationCommand = "Update Reservation set ArrivalDate = ?, DepartureDate = ?, RoomNumber = ? where ReservationID = ?";
 			updateReservationPstmnt = con.prepareStatement(updateReservationCommand);
-			
 	
 			System.out.println("Sets up employee database");
 			//Setting up the add employee prepared statement
-			String addEmployeeCommand = "insert into Employees(EmployeeID, Name, Address, PhoneNumber, Email, Salary, Birthday, Position) values (0, ?,?,?,?,?,?,?)";
+			String addEmployeeCommand = "insert into Employees(firstname, lastname, Address, PhoneNumber, Email, Salary, Birthday, Position, Password) values (?, ?,?,?,?,?,?,?, ?)";
 			addEmployeePstmnt = con.prepareStatement(addEmployeeCommand);
 			
 			//getting all reservations
-			String getReservationsCommand = "Select * from Reservation;";
+			String getReservationsCommand = "Select * from Reservation";
 			getReservationsPstmnt = con.prepareStatement(getReservationsCommand);
 			
 			//getting all employees
@@ -113,7 +127,11 @@ public class DatabaseConnection {
 			//setting up finding the average salary for each position
 			String getAverageSalaryCommand = "SELECT avg(Salary) FROM Employees WHERE Position = ?;";
 			getAverageSalaryPstmnt = con.prepareStatement(getAverageSalaryCommand);
-			
+
+			//Setting up finding the employees who have higher than average pay for their position
+			String getEmployeesWithHigherPay = "SELECT employeeId, firstname, salary, avg (salary) as average, position from employees e1 where e1.salary > ( select avg (salary) from employees e2 where e1.position = e2.position )";
+			getEmployeesWithHigherPayPstmnt = con.prepareStatement(getEmployeesWithHigherPay);
+
 			//setting up finding the max salary for each position
 			String getMaxSalaryCommand = "SELECT max(Salary) FROM Employees WHERE Position = ?;";
 			getMaxSalaryPstmnt = con.prepareStatement(getMaxSalaryCommand);
@@ -138,6 +156,10 @@ public class DatabaseConnection {
 			String updateScheduleCommand = "Update CleaningSchedule set cleaned = ? where RoomNumber = ?";
 			updateCleaningSchedulePstmnt = con.prepareStatement(updateScheduleCommand);
 			
+			//updating the availability of a room
+			String updateRoomCommand = "Update Rooms set Available = ? where RoomNumber = ?";
+			updateRoomAvailabilityPstmnt = con.prepareStatement(updateRoomCommand);
+			
 			//get all of the employees
 			String getAllEmployeesCommand = "Select * from Employees";
 			getAllEmployeesPstmnt = con.prepareStatement(getAllEmployeesCommand);
@@ -149,8 +171,27 @@ public class DatabaseConnection {
 			//insert new Cleaning data
 			String insertNewCleaningCommand = "Insert into CleaningSchedule(EmployeeID, RoomNumber) values (?, ?);";
 			insertNewCleaningEntryPstmnt = con.prepareStatement(insertNewCleaningCommand);
-			
-			
+
+			//delete guest account based on email
+			String deleteGuestCommand = "Delete from Guests where Email = ?";
+			deleteGuestPstmt = con.prepareStatement(deleteGuestCommand);
+
+			//Gets a cleaner with the least amount of rooms to clean
+			String getCleanerWithLeastRooms =
+			"Select employeeId, count(*) as roomsLeft  From cleaningSchedule Where cleaned = 0 group by employeeId having count(*) = " +
+			"(Select min(roomsLeft) "+
+			"from (Select employeeId, count(*) as roomsLeft  From cleaningSchedule Where cleaned = 0 group by employeeId))";
+			getCleanerWithLeastRoomsPstmnt = con.prepareStatement(getCleanerWithLeastRooms);
+
+			String getDirtyUnassignedRooms = "Select r.roomNumber FROM rooms r where r.roomNumber not in (SELECT roomNumber from cleaningSchedule) and r.clean = 0";
+			getDirtyUnassignedRoomsPstmnt = con.prepareStatement(getDirtyUnassignedRooms);
+
+			String assignEmployeeToCleanRoom ="insert into cleaningSchedule values (0, ?,?,0)";
+			assignEmployeeToCleanRoomPstmnt = con.prepareStatement(assignEmployeeToCleanRoom);
+
+			String listAvailableRoomsBetweenDates = "Select roomNumber, price from rooms where roomNumber not in (Select distinct roomNumber from reservation where (? >= arrivalDate and ? < departureDate) || (? >= arrivalDate and ? <= departureDate)" +
+					" || (? <= arrivalDate and ? >=departureDate)) ";
+			listAvailableRoomsBetweenDatesPstmnt = con.prepareStatement(listAvailableRoomsBetweenDates);
 		}
 		catch(Exception e){
 			System.out.println("There was an error creating connection to the database. Make sure you set up the username and password correctly: " + e);
@@ -177,6 +218,95 @@ public class DatabaseConnection {
 		return null;
 		
 	}
+	public ResultSet listAvailableRoomsBetweenDates (Date arrivalDate, Date departureDate)
+	{
+		try {
+			listAvailableRoomsBetweenDatesPstmnt.setDate(1,arrivalDate);
+			listAvailableRoomsBetweenDatesPstmnt.setDate(2,arrivalDate);
+			listAvailableRoomsBetweenDatesPstmnt.setDate(3,departureDate);
+			listAvailableRoomsBetweenDatesPstmnt.setDate(4,departureDate);
+			listAvailableRoomsBetweenDatesPstmnt.setDate(5,arrivalDate);
+			listAvailableRoomsBetweenDatesPstmnt.setDate(6,departureDate);
+			ResultSet resultSet = listAvailableRoomsBetweenDatesPstmnt.executeQuery();
+			return resultSet;
+		}
+		catch (Exception e)
+		{
+			System.out.println("there was an error when trying to list the available rooms between the dates provided: " + e);
+		}
+		return  null;
+	}
+	/**
+	 * Assigns an employee to clean a room
+	 * @param eID The ID of the employee who will be cleaning the room
+	 * @param rNum the room number of the room that needs to be cleaned
+	 */
+	public void assignEmployeeToCleanRoom(int eID,int rNum)
+	{
+		try
+		{
+			assignEmployeeToCleanRoomPstmnt.setInt(1, eID);
+			assignEmployeeToCleanRoomPstmnt.setInt(2,rNum);
+			assignEmployeeToCleanRoomPstmnt.executeUpdate();
+			System.out.println("Employee " + eID+" successfully assigned to clean room "+rNum+".");
+		}
+		catch (Exception e)
+		{
+			System.out.println("Error when trying to assign the employee to clean the room: "+e);
+		}
+	}
+	/**
+	 * Gets the room numbers of the rooms that are dirty but have not been assigned for cleaning
+	 * @return result set containing the room numbers
+	 */
+	public ResultSet getDirtyUnassignedRooms ()
+	{
+		try
+		{
+			ResultSet result = getDirtyUnassignedRoomsPstmnt.executeQuery();
+			return result;
+		}
+		catch (Exception e)
+		{
+			System.out.println("there was a problem when trying to find the dirty unassigned rooms: "+ e);
+		}
+		return null;
+	}
+	/**
+	 * gets the employees that have higher pay than the average for their position
+	 * @return a result set containing the employee information
+	 */
+	public ResultSet getEmployeesWithHigherThanAveragePay ()
+	{
+		try
+		{
+			ResultSet result = getEmployeesWithHigherPayPstmnt.executeQuery();
+			return result;
+		}
+		catch (Exception e)
+		{
+			System.out.println("an error has occurred when trying to fetch the data: "+ e);
+		}
+		return null;
+	}
+
+	/**
+	 * Gets the employees with the least amount of rooms to clean
+	 * @return a result set containing the employee/S information
+	 */
+	public ResultSet getCleanerWithLeastRooms ()
+	{
+		try
+		{
+			ResultSet result = getCleanerWithLeastRoomsPstmnt.executeQuery();
+			return result;
+		}
+		catch (Exception e)
+		{
+			System.out.println("an error has occurred when trying to find the cleaner with the least amount of rooms to clean: "+ e);
+		}
+		return null;
+	}
 
 	/**
 	 * Cancel a reservation for a user with the given userE-Mail and arrivalDate
@@ -198,6 +328,42 @@ public class DatabaseConnection {
 	}
 
 	/**
+	 * Delete the guest account for user with the given email
+	 * @param guestEmail The email of the guest whose account is to be deleted
+	 */
+	public void deleteGuestAccount(String guestEmail)
+	{
+		try
+		{
+			deleteGuestPstmt.setString(1, guestEmail);
+			deleteGuestPstmt.executeUpdate();
+		}
+		catch (Exception e)
+		{
+			System.out.println("An error has occurred when trying to delete the account: " + e);
+		}
+	}
+
+
+	/**
+	 * Gets the list of all rooms
+	 * @return A result set if the query successfully executes
+	 */
+	public ResultSet listRooms()
+	{
+		try
+		{
+			ResultSet result = getRoomsPstmnt.executeQuery();
+			return result;
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to list all rooms: " + e);
+		}
+		return null;
+	}
+
+	/**
 	 * Gets the list of all available rooms
 	 * @return A result set if the query successfully executes
 	 */
@@ -211,6 +377,26 @@ public class DatabaseConnection {
 		catch(Exception e)
 		{
 			System.out.println("An error has occurred when trying to list all available rooms: " + e);
+		}
+		return null;
+	}
+	
+	/**
+	 * Gets the list of a guests current reservations
+	 * @return A result set if the query successfully executes
+	 */
+	public ResultSet getGuestReservations (String email)
+	{
+		email = email.toLowerCase();
+		try
+		{
+			getGuestReservationsPstmnt.setString(1, email);
+			ResultSet result = getGuestReservationsPstmnt.executeQuery();
+			return result;
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to get your reservations: " + e);
 		}
 		return null;
 	}
@@ -485,6 +671,26 @@ public class DatabaseConnection {
 		}
 		
 	}
+	
+	/**
+	 * update the cleaning schedule cleaned value
+	 * @param newValue the new value we are updating it to
+	 * @param roomNumber the room number we are updating
+	 */
+	public void updateRoomAvailability(boolean newValue, int roomNumber)
+	{
+		try
+		{
+			updateRoomAvailabilityPstmnt.setBoolean(1, newValue);
+			updateRoomAvailabilityPstmnt.setInt(2,  roomNumber);
+			updateRoomAvailabilityPstmnt.executeUpdate();
+		}
+		catch(Exception e)
+		{
+			System.out.println("Error occurred when trying to update the availability of room " + roomNumber + ":" + e);
+		}
+		
+	}
 
 	/**
 	 * gets all of the employees from the database
@@ -568,16 +774,21 @@ public class DatabaseConnection {
 		}
 	}
 	
-	public void addEmployee (String name, String address, String phoneNum, String email, Integer salary, Date birthday, String position){
+	public void addEmployee (String name, String address, String phoneNum, String email, Integer salary, Date birthday, String position, String password){
 		try
 		{
-			addEmployeePstmnt.setString(1, name);
-			addEmployeePstmnt.setString(2, address);
-			addEmployeePstmnt.setString(3, phoneNum);
-			addEmployeePstmnt.setString(4, email);
-			addEmployeePstmnt.setInt(5, salary);
-			addEmployeePstmnt.setDate(6, birthday);
-			addEmployeePstmnt.setString(7, position);
+			String firstname = name.split(" ")[0];
+			String secondname = name.split(" ")[1];
+			
+			addEmployeePstmnt.setString(1, firstname);
+			addEmployeePstmnt.setString(2, secondname);
+			addEmployeePstmnt.setString(3, address);
+			addEmployeePstmnt.setString(4, phoneNum);
+			addEmployeePstmnt.setString(5, email);
+			addEmployeePstmnt.setInt(6, salary);
+			addEmployeePstmnt.setDate(7, birthday);
+			addEmployeePstmnt.setString(8, position);
+			addEmployeePstmnt.setString(9, password);
 			addEmployeePstmnt.executeUpdate();
 		}
 		catch(Exception e)
@@ -603,13 +814,14 @@ public class DatabaseConnection {
 		}
 	}
 
-	public void updateReservation (Date newArrival, Date newDeparture, int roomNum)
+	public void updateReservation (Date newArrival, Date newDeparture, int roomNum, int resID)
 	{
 		try
 		{
 			updateReservationPstmnt.setDate(1, newArrival);
 			updateReservationPstmnt.setDate(2, newDeparture);
-			updateReservationPstmnt.setInt(4, roomNum);
+			updateReservationPstmnt.setInt(3, roomNum);
+			updateReservationPstmnt.setInt(4, resID);
 			updateReservationPstmnt.executeUpdate();
 		}
 		catch(Exception e)

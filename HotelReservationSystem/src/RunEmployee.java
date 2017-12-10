@@ -1,5 +1,8 @@
 import java.sql.Date;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -9,6 +12,7 @@ import javax.jws.soap.SOAPBinding.Use;
 public class RunEmployee {
 
 	DatabaseConnection connection;
+	public boolean quit = false;
 	
 	public RunEmployee()
 	{
@@ -21,7 +25,7 @@ public class RunEmployee {
 	public void runProgram()
 	{
 		boolean choseValidNumber = false;
-		while (!choseValidNumber)
+		while (!choseValidNumber && !quit)
 		{
 			int input = readInput("");
 			switch(input)
@@ -32,6 +36,7 @@ public class RunEmployee {
 					break;
 				
 				case 2:		//Chose to quit the program 
+					quit = true;
 					System.out.println("Thank you for visiting! :)");
 					return;
 				
@@ -43,7 +48,7 @@ public class RunEmployee {
 		
 		choseValidNumber = false; //reset the boolean to be false
 		
-		while(!choseValidNumber)
+		while(!choseValidNumber && !quit)
 		{
 			int input = readInput(UserInformation.name);
 			if(UserInformation.type.equals("cleaning staff"))
@@ -71,30 +76,26 @@ public class RunEmployee {
 			{
 				switch(input)
 				{
-					case 1:		//Chose to create a reservation 
-						System.out.println("NEED TO CHANGE RESERVATION OF ROOMS. DISPLAY ALL THE ROOMS THAT ARE AVAILABLE DURING THAT TIME PERIOD FOR THE USER TO CHOOSE FROM. "
-								+ "\nALSO ADD A TOTAL COST AFTER CALCULATING THE TOTAL NUMBER OF DAYS THE USER IS STAYING. "
-								+ "\nDISPLAY ALL THE CURRENT RESERVATIONS FOR THAT GUEST");	
-						reserveRoom();
+					case 1:	reserveRoom();
 						break;
 					
-					case 2:		//Chose to cancel a reservation 
-						System.out.println("Need to implement cancel reservation. Prepared Statement is already created for this command");	
+					case 2: 	//Chose to cancel a guests reservation
+						cancelReservation();	
 						break;
 					
-					case 3: 	//Chose to update a reservation
-						System.out.println("Need to implement updating reservations. Method already exists in DatabaseConnection class.");	
+					case 3: 	//Chose to update a guests reservation
+						updateReservation();
 						break;
 					
-					case 4: 	//Chose to display all reservations for a specific guest
-						System.out.println("Need to implement displaying all reservations that a guest currently has");
+					case 4: 	//Chose to display a guests reservations
+						getGuestReservations();
 						break;
 					case 5:		//Chose to display a list of all the rooms along with their availability 
 						listAllRooms();  																									
 						break;
 					
-					case 6: 	//Chose to update a reservation
-						System.out.println("Need to implement the update availability of a room method");									
+					case 6: 	//Chose to update the availability of a room
+						updateRoomAvailability();									
 						break;
 					
 					case 7:		//Chose to quit the program
@@ -124,7 +125,7 @@ public class RunEmployee {
 						break;
 					
 					case 4: 	//Chose to remove a guest account
-						System.out.println("Need to implement deleting a guest account. Prepared Statement is already created for this command");
+						deleteGuestAccount();
 						break;
 					
 					case 5: 	//Chose to display the salaries of a type of employee
@@ -140,19 +141,19 @@ public class RunEmployee {
 						break;
 					
 					case 8:		//Chose to display all the employees who have a higher pay than other people in their position
-						System.out.println("Need to implement the method for getting the employees who have a higher pay than other people in their position");
+						getEmployeesWithHigherAveragePay();
 						break;
 					
 					case 9:		//Chose to display the cleaning staff employees who have the least number of rooms to clean
-						System.out.println("Need to implement the method for getting the employees who have the least numebr of rooms to clean");
+						getCleanersWithLeastRooms();
 						break;
 					
 					case 10:	//Chose to display all the rooms what are not cleaned and are not listed to be cleaned
-						System.out.println("Need to implement displaying all the rooms that are not clean and not currently listed to be cleaned");
+						getDirtyUnassignedRooms();
 						break;
 					
 					case 11: 	//Chose to assign an employee to clean a room
-						System.out.println("Need to implement assigning an employee to clean a room");
+						assignEmployeeToCleanRoom();
 						break;
 					case 12:	//Chose to log out
 						choseValidNumber = true;
@@ -165,7 +166,6 @@ public class RunEmployee {
 			}
 		}
 		
-		System.out.println("Thank you for visiting! :)");	
 	}
 
 	/**
@@ -177,7 +177,7 @@ public class RunEmployee {
 	{
 		Scanner in = new Scanner(System.in);
 		boolean worked = false;
-		while (!worked)
+		while (!worked && !quit)
 		{
 			if(name.equals(""))
 			{
@@ -235,6 +235,7 @@ public class RunEmployee {
 			catch (Exception e)
 			{
 				System.out.println("There was an error with your input: " + e + "\nPlease try again.");
+				return -1;
 			}
 		}
 		return -1;
@@ -247,7 +248,7 @@ public class RunEmployee {
 	{
 		boolean loggedIn = false;
 		ResultSet result = null;
-		while(!loggedIn)
+		while(!loggedIn && !quit)
 		{
 			Scanner input = new Scanner(System.in);
 			boolean foundUsername = false;
@@ -259,10 +260,12 @@ public class RunEmployee {
 			{
 				try
 				{
-					System.out.println("What is your username? ");
+					System.out.println("What is your email? ");
 					String username = input.nextLine();
 					if(username.toLowerCase().equals("q"))
 					{
+						quit = true;
+						System.out.println("\nThank you for visiting! :) ");
 						break;
 					}
 					result = connection.sendQuery("select * from employees where email = '" + username + "';");
@@ -274,13 +277,13 @@ public class RunEmployee {
 					{
 						passInDB = result.getString(8);
 						ID = "" + result.getInt(1);
-						System.out.println("This is the password for debugging purposes. Remove when finished: " + passInDB);
 						foundUsername = true;
 					}
 				}
 				catch (Exception e)
 				{
 					System.out.println("There was an error: " + e);
+					foundUsername = true;
 					return;
 				}
 			}
@@ -295,9 +298,8 @@ public class RunEmployee {
 						correctPassword = true;
 						loggedIn = true;
 						UserInformation.ID = ID;
-						UserInformation.name = result.getString(2);
+						UserInformation.name = result.getString(2) + " " + result.getString(3);
 						UserInformation.type = result.getString(10);
-						System.out.println("Type: " + UserInformation.type);
 					}
 					else
 					{
@@ -324,7 +326,26 @@ public class RunEmployee {
 			}	
 		}
 	}
-	
+
+	/**
+	 *
+	 */
+	public void assignEmployeeToCleanRoom()
+	{
+		try
+		{
+			Scanner in = new Scanner(System.in);
+			System.out.println("Please provide the employee ID of the employee who will be cleaning the room: ");
+			int eId = in.nextInt();
+			System.out.println("Please provide the room number of the room that is to be cleaned: ");
+			int rNum = in.nextInt();
+			connection.assignEmployeeToCleanRoom(eId,rNum);
+		}
+		catch (Exception e)
+		{
+			System.out.println("Failed to assign the employee to clean the room: " + e);
+		}
+	}
 	
 	/**
 	 * updates a Cleaning Schedule tuple based on the room number
@@ -356,7 +377,84 @@ public class RunEmployee {
 			System.out.println("Error in trying to display the changes made in Cleaning Schedule: " + e);
 		}
 	}
-	
+	/**
+	 * Prints the employees who have higher than average pay
+	 */
+	public void getEmployeesWithHigherAveragePay()
+	{
+		System.out.println("Here are the employees with higher than average pay: ");
+		ResultSet resultSet = connection.getEmployeesWithHigherThanAveragePay();
+		try
+		{
+			System.out.println("#\t\tName\t\tSalary\t\tAverage Salary\t\tPosition");
+			while(resultSet.next()){
+				System.out.println(resultSet.getInt(1)+ "\t\t"+resultSet.getString(2) + "\t\t$" +
+						resultSet.getInt(4)+ "\t\t$"+resultSet.getInt(5)+ "\t\t"+resultSet.getString(6));
+			}
+		}
+		catch (Exception e)
+		{
+			System.out.println("error when trying to find the employees with higher than average pay: "+e);
+		}
+	}
+	/**
+	 * Prints the room numbers of the rooms that are dirty but not assigned for cleaning
+	 */
+	public void getDirtyUnassignedRooms ()
+	{
+		System.out.println("here are the room numbers of the rooms that are dirty but not assigned for cleaning: ");
+		ResultSet resultSet = connection.getDirtyUnassignedRooms();
+		try
+		{
+			System.out.println("#");
+			while (resultSet.next())
+			{
+				System.out.println(resultSet.getInt(1));
+			}
+		}
+		catch (Exception e)
+		{
+			System.out.println("an error occurred when trying to get the room numbers of the rooms that are dirty but not assigned for cleaning: "+ e);
+		}
+	}
+	/**
+	 * Prints the cleaners who have the least amount of rooms to clean
+	 */
+	public void getCleanersWithLeastRooms ()
+	{
+		System.out.println("here are the cleaners with the least amount of rooms to clean: ");
+		ResultSet resultSet = connection.getCleanerWithLeastRooms();
+		try
+		{
+			System.out.println("#\t\troomsLeft");
+			while (resultSet.next())
+			{
+				System.out.println(resultSet.getInt(1)+ "\t\t"+resultSet.getInt(2));
+			}
+		}
+		catch (Exception e)
+		{
+			System.out.println("error when trying to find the cleaners with the least amount of rooms to clean: "+ e);
+		}
+	}
+	/**
+	 * Deletes a guest account based on the email provided
+	 */
+	public void deleteGuestAccount()
+	{
+		try
+		{
+			Scanner in = new Scanner (System.in);
+			System.out.println ("What is the email of the guest whose account you want to delete?");
+			String email = in.nextLine();
+			connection.deleteGuestAccount(email);
+			System.out.println("Successfully deleted guest account.");
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to delete the guest account" + e);
+		}
+	}
 	
 	/**
 	 * gets all the cleaning schedules
@@ -423,15 +521,21 @@ public class RunEmployee {
 		String arrivalDate = in.nextLine();
 		System.out.println("Enter the departure date:(yyyy-mm-dd)");
 		String departureDate = in.nextLine();
-		
-		/*
-		 * TO DO:
-		 * SHOW A LIST OF ALL THE ROOMS THAT ARE AVAILABLE DURING THIS TIME PERIOD
-		 * GET THE TOTAL COST FOR THIS STAY
-		 */
-		
-		
-		
+		Date aD = Date.valueOf(arrivalDate);
+		Date dD = Date.valueOf(departureDate);
+		ResultSet result = connection.listAvailableRoomsBetweenDates(aD,dD);
+		System.out.println("A list of the available rooms and per night cost: ");
+
+		try {
+			System.out.println("Room Number"+ "\t"+ "Price");
+			while (result.next()) {
+				System.out.println(result.getInt(1) +"\t\t$"+result.getInt(2));
+			}
+		}
+		catch (Exception exception)
+		{
+			System.out.println("an error occurred when trying to print the list of available rooms: "+ exception);
+		}
 		
 		
 		System.out.println("Enter the guest's email:");
@@ -447,18 +551,19 @@ public class RunEmployee {
 		}
 		catch(Exception e)
 		{
-			System.out.println("An error has occurred when trying to book a room: " + e);
+			System.out.println("An error has occurred when trying to book a room. May be using an email that does not exist: " + e);
 		}
+		System.out.println("Total cost for this stay will be: $" + getReservationCost(roomNumber, arrivalDate, departureDate) + "\n");
 
 	}
 	
 	public void listAllRooms()
 	{
 		System.out.println("All rooms and their current status:");
-		ResultSet resultSet = connection.listAvailableRooms();
+		ResultSet resultSet = connection.listRooms();
 		try
 		{
-			System.out.println("#\t\tPrice\t\tBeds\t\tType\t\tClean?\t\tAvailable?");
+			System.out.println("#\t\tPrice\t\tBeds\t\tType\t\tAvailable?\tClean?");
 			while(resultSet.next())
 			{
 				System.out.print(resultSet.getInt(1)+"\t\t"+resultSet.getInt(2)+"\t\t"
@@ -494,9 +599,9 @@ public class RunEmployee {
 	public void addEmployee ()
 	{
 		Scanner in = new Scanner (System.in);
-		System.out.println("Enter name:");
+		System.out.println("Enter first and last name:");
 		String name = in.nextLine();
-		System.out.println("Enter address:");
+		System.out.println("Enter home address:");
 		String address = in.nextLine();
 		System.out.println("Enter phone number:");
 		String phone = in.nextLine();
@@ -520,16 +625,45 @@ public class RunEmployee {
 		}
 		System.out.print("Enter salary: \n$");
 		Integer salary = in.nextInt();
+		in = new Scanner(System.in);
+		System.out.println("Enter this employee's password: ");
+		String password = in.next();
 		
 		try
 		{
-			connection.addEmployee(name, address, phone, email, salary, Date.valueOf(birthday), position);
+			connection.addEmployee(name, address, phone, email, salary, Date.valueOf(birthday), position, password);
 			getEmployees();
 		}
 		catch(Exception e)
 		{
 			System.out.println("An error has occurred when trying to create a employee account " + e);
 		}
+	}
+	
+	/**
+	 * Returns the cost of a reservation
+	 */
+	public Integer getReservationCost(String roomNumber, String arrivalDate, String departureDate){
+		int cost = 0;
+		int room = Integer.parseInt(roomNumber);
+		LocalDate start = LocalDate.parse(arrivalDate);
+		LocalDate end = LocalDate.parse(departureDate);
+		Period num = Period.between(start, end);
+		String query = "SELECT Price from Rooms where RoomNumber = " + room;
+	    ResultSet resultSet = connection.sendQuery(query);
+	    try 
+	    {
+	    	while (resultSet.next()) 
+	    	{
+	    		cost = resultSet.getInt(1);
+	    	}
+		} 
+	    catch (SQLException e) {
+			e.printStackTrace();
+		}
+	    cost = cost * num.getDays();
+		return cost;
+		
 	}
 	
 	/**
@@ -626,7 +760,7 @@ public class RunEmployee {
 		String first = in.nextLine();
 		System.out.println("Enter last name:");
 		String last = in.nextLine();
-		System.out.println("Enter address:");
+		System.out.println("Enter home address:");
 		String address = in.nextLine();
 		System.out.println("Enter phone number:");
 		String phone = in.nextLine();
@@ -651,7 +785,7 @@ public class RunEmployee {
 		}
 		catch(Exception e)
 		{
-			System.out.println("An error has occurred when trying to create a guest account " + e);
+			System.out.println("An error has occurred when trying to create a guest account. This email may already be in use.");
 		}
 	}
 	
@@ -709,7 +843,7 @@ public class RunEmployee {
 					{
 						int result = connection.getTypeOfSalary(position, type);
 						foundPosition = true;
-						System.out.println("The " + type + " salary for a " + position + " is $" + result + "\n\n\n\n\n" );
+						System.out.println("The " + type + " salary for a " + position + " is $" + result + "\n" );
 					}
 					else
 					{
@@ -747,4 +881,140 @@ public class RunEmployee {
 		}
 	}
 	
+	/**
+	 * gets all the current users who do not have a reservation set up
+	 */
+	public void cancelReservation()
+	{
+		Scanner in = new Scanner (System.in);
+		System.out.println("Enter guest email to cancel reservation:");
+		String email = in.nextLine();
+		System.out.println("Enter guest arrival date (YYYY-MM-DD) for reservation to cancel:");
+		String date = in.nextLine();
+		try
+		{
+			connection.cancelReservation(email, Date.valueOf(date));
+		}
+		catch(Exception e)
+		{
+			System.out.println("An error has occurred when trying to cancel a reservation: " + e);
+		}
+
+	}
+	
+	/**
+	 * updates the availability of a room
+	 */
+	public void updateRoomAvailability()
+	{
+		try
+		{
+			listAllRooms();
+			Scanner in = new Scanner(System.in);
+			ArrayList<Integer> rooms = getRooms();
+			System.out.print("Please enter a Room Number you would like to be updated: ");
+			int room = in.nextInt();
+			while (!rooms.contains(room))
+			{
+				System.out.println("Invalid Entry. Please enter a valid Room Number you would like to be updated");
+				room = in.nextInt();
+			}
+			System.out.println("Set the Availability attibute to true or false for Room Number " + room + "?");
+			boolean available = in.nextBoolean();
+			connection.updateRoomAvailability(available, room);
+			System.out.println();
+			listAllRooms();
+			System.out.println();
+			
+		}
+		catch(Exception e)
+		{
+			System.out.println("Error in trying to display the changes made in Cleaning Schedule: " + e);
+		}
+		
+	}
+	
+	/**
+	 * updates a reservation
+	 */
+	public void updateReservation()
+	{
+		try
+		{
+			String email = UserInformation.ID;
+			ResultSet results = connection.getReservations();
+			while(results.next())
+			{
+				System.out.println("{Reservation Number: " + results.getInt(1) + ", ArrivalDate: " + results.getString(2) + ", DepartureDate: " + results.getString(3) + ", User Email: " + results.getString(4)+ ", RoomNumber: " + results.getInt(5)+"}");
+			}
+			System.out.println();
+			Scanner in = new Scanner(System.in);
+			System.out.println("Please enter a Reservation Number you would like to be updated");
+			int resNum = in.nextInt();
+			in = new Scanner(System.in);
+			System.out.println("Enter an arrival date (yyyy-mm-dd): ");
+			String newArrival = in.nextLine();
+			System.out.println("Enter a departure date (yyyy-mm-dd): ");
+			String newDeparture = in.nextLine();
+			System.out.println("Enter a room number: ");
+			int roomNum = in.nextInt();
+			connection.updateReservation(Date.valueOf(newArrival), Date.valueOf(newDeparture), roomNum, resNum);
+			System.out.println();
+			System.out.println();
+				
+		}
+		catch(Exception e)
+		{
+			System.out.println("Error in trying to update a reservation: " + e);
+		}
+	}
+	
+	/**
+	 * gets all the current guests reservations
+	 */
+	public void getGuestReservations()
+	{
+		try 
+		{
+			Scanner in = new Scanner(System.in);
+			System.out.println("Enter guests email to view their reservations: ");
+			String email = in.nextLine();
+			ResultSet results = connection.getGuestReservations(email);
+			if (!results.next()) System.out.println("That guest does not have any active reservations");
+			results.beforeFirst();
+			while(results.next())
+			{
+				System.out.println("{Reservation ID: " + results.getInt(1) + ", Arrival Date: " + results.getString(2) + ", Departure Date: " + results.getString(3) + ", Room Number: " + results.getInt(5)+"}");
+			}
+			System.out.println();
+		}
+			catch(Exception e)
+			{
+				System.out.println("An error has occurred when trying display guests reservations" + e);
+			}
+	}
+	
+	/**
+	 * gets all the the rooms
+	 */
+	public ArrayList<Integer> getRooms()
+	{
+		try 
+		{
+			ArrayList<Integer> rooms = new ArrayList<>();
+			ResultSet results = connection.listRooms();
+			if (!results.next()) System.out.println("There are no rooms");
+			while(results.next())
+			{
+				rooms.add(results.getInt(1));
+			}
+			System.out.println();
+			return rooms;
+		}
+			catch(Exception e)
+			{
+				System.out.println("An error has occurred when trying display the rooms" + e);
+			}
+		return null;
+	}
 }
