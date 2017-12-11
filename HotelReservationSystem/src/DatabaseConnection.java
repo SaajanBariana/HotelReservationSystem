@@ -101,7 +101,7 @@ public class DatabaseConnection {
 	
 			System.out.println("Sets up employee database");
 			//Setting up the add employee prepared statement
-			String addEmployeeCommand = "insert into Employees(firstname, lastname, Address, PhoneNumber, Email, Salary, Birthday, Position, Password) values (?, ?,?,?,?,?,?,?, ?)";
+			String addEmployeeCommand = "insert into Employees(name, address, phonenumber, email, salary,password, birthday, position) values (?,?,?,?,?,?,?,?)";
 			addEmployeePstmnt = con.prepareStatement(addEmployeeCommand);
 			
 			//getting all reservations
@@ -129,7 +129,7 @@ public class DatabaseConnection {
 			getAverageSalaryPstmnt = con.prepareStatement(getAverageSalaryCommand);
 
 			//Setting up finding the employees who have higher than average pay for their position
-			String getEmployeesWithHigherPay = "SELECT employeeId, firstname, salary, avg (salary) as average, position from employees e1 where e1.salary > ( select avg (salary) from employees e2 where e1.position = e2.position )";
+			String getEmployeesWithHigherPay = "SELECT employeeId, name, salary, avg(salary) as average, position from employees e1 where e1.salary > ( select avg (salary) from employees e2 where e1.position = e2.position )";
 			getEmployeesWithHigherPayPstmnt = con.prepareStatement(getEmployeesWithHigherPay);
 
 			//setting up finding the max salary for each position
@@ -777,18 +777,15 @@ public class DatabaseConnection {
 	public void addEmployee (String name, String address, String phoneNum, String email, Integer salary, Date birthday, String position, String password){
 		try
 		{
-			String firstname = name.split(" ")[0];
-			String secondname = name.split(" ")[1];
 			
-			addEmployeePstmnt.setString(1, firstname);
-			addEmployeePstmnt.setString(2, secondname);
-			addEmployeePstmnt.setString(3, address);
-			addEmployeePstmnt.setString(4, phoneNum);
-			addEmployeePstmnt.setString(5, email);
-			addEmployeePstmnt.setInt(6, salary);
+			addEmployeePstmnt.setString(1, name);
+			addEmployeePstmnt.setString(2,address );
+			addEmployeePstmnt.setString(3, phoneNum);
+			addEmployeePstmnt.setString(4, email);
+			addEmployeePstmnt.setInt(5, salary);
+			addEmployeePstmnt.setString(6, password);
 			addEmployeePstmnt.setDate(7, birthday);
 			addEmployeePstmnt.setString(8, position);
-			addEmployeePstmnt.setString(9, password);
 			addEmployeePstmnt.executeUpdate();
 		}
 		catch(Exception e)

@@ -275,7 +275,7 @@ public class RunEmployee {
 					}
 					else
 					{
-						passInDB = result.getString(8);
+						passInDB = result.getString(7);
 						ID = "" + result.getInt(1);
 						foundUsername = true;
 					}
@@ -299,7 +299,7 @@ public class RunEmployee {
 						loggedIn = true;
 						UserInformation.ID = ID;
 						UserInformation.name = result.getString(2) + " " + result.getString(3);
-						UserInformation.type = result.getString(10);
+						UserInformation.type = result.getString(9);
 					}
 					else
 					{
@@ -389,7 +389,7 @@ public class RunEmployee {
 			System.out.println("#\t\tName\t\tSalary\t\tAverage Salary\t\tPosition");
 			while(resultSet.next()){
 				System.out.println(resultSet.getInt(1)+ "\t\t"+resultSet.getString(2) + "\t\t$" +
-						resultSet.getInt(4)+ "\t\t$"+resultSet.getInt(5)+ "\t\t"+resultSet.getString(6));
+						resultSet.getInt(3)+ "\t\t$"+resultSet.getInt(4)+ "\t\t"+resultSet.getString(5));
 			}
 		}
 		catch (Exception e)
@@ -599,7 +599,7 @@ public class RunEmployee {
 	public void addEmployee ()
 	{
 		Scanner in = new Scanner (System.in);
-		System.out.println("Enter first and last name:");
+		System.out.println("Enter name:");
 		String name = in.nextLine();
 		System.out.println("Enter home address:");
 		String address = in.nextLine();
@@ -678,8 +678,8 @@ public class RunEmployee {
 			ResultSet results = connection.getEmployees();
 			while(results.next())
 			{
-				System.out.println("{Employee ID: " + results.getInt(1) + ", Name: " + results.getString(2) + " " + results.getString(3) + ", Address: " + results.getString(4) + ", Phone Number: " + results.getString(5) + ", Email: "+ results.getString(6) + 
-						", Salary: " + results.getInt(7) + ", Birthday: " + results.getDate(9) + ", Position: " + results.getString(10)+ "}");
+				System.out.println("{Employee ID: " + results.getInt(1) + ", Name: " + results.getString(2) +", Address: " + results.getString(3) + ", Phone Number: " + results.getString(4) + ", Email: "+ results.getString(5) + 
+						", Salary: " + results.getInt(6) + ", Birthday: " + results.getDate(8) + ", Position: " + results.getString(9)+ "}");
 				employeeId.add(results.getString(1));
 			}
 			System.out.println();
