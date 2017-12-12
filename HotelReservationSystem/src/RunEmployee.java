@@ -1,4 +1,4 @@
-import java.sql.Date;
+import java.sql.Date; 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -6,13 +6,18 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.sql.CallableStatement;
+
 
 import javax.jws.soap.SOAPBinding.Use;
+
+import com.sun.jmx.snmp.Timestamp;
 
 public class RunEmployee {
 
 	DatabaseConnection connection;
 	public boolean quit = false;
+
 	
 	public RunEmployee()
 	{
@@ -155,8 +160,10 @@ public class RunEmployee {
 					case 11: 	//Chose to assign an employee to clean a room
 						assignEmployeeToCleanRoom();
 						break;
-					case 12:	//Chose to log out
+					case 13:	//Chose to log out
 						choseValidNumber = true;
+						break;
+					case 12: archive();
 						break;
 					
 					default:	//Chose a number that was not a valid choice 
@@ -223,7 +230,8 @@ public class RunEmployee {
 							+ "(9) Display all the employees from the cleaning staff that have the least number of rooms to clean\n"
 							+ "(10) Display a list of all rooms that are not clean and are not currently listed to be cleaned\n"
 							+ "(11) Assign an employee to clean a room\n"
-							+ "(12) Log Out");
+							+ "(12) Archive\n"
+							+ "(13) Log Out");
 				}
 			}
 			try
@@ -376,6 +384,10 @@ public class RunEmployee {
 		{
 			System.out.println("Error in trying to display the changes made in Cleaning Schedule: " + e);
 		}
+	}
+	
+	public void archive(){
+		connection.callArchive();
 	}
 	/**
 	 * Prints the employees who have higher than average pay

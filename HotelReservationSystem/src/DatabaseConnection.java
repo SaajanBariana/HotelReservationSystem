@@ -1,10 +1,5 @@
 import javax.xml.transform.Result;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -12,6 +7,7 @@ import java.util.ArrayList;
 public class DatabaseConnection {
 	private Connection con;
 	private Statement stmnt;
+	CallableStatement cs;
 	
 	//create all of the prepared statements 
 	private PreparedStatement reserveRoomPstmnt;
@@ -203,6 +199,20 @@ public class DatabaseConnection {
 	 * send a simple, general query to the database
 	 * @param query the query that you want to send to the database
 	 */
+	
+	public String callArchive(){
+		String cutoff = "2018-01-05";
+		try {
+			con.prepareCall("{call archive(?)}");
+			cs.setString("cutoffDate", cutoff);
+			cs.execute();
+			return "Archived!";
+		} catch (SQLException e) {
+			
+			e.printStackTrace();
+			return "Failed to archive";
+		}
+	}
 	public ResultSet sendQuery(String query)
 	{
 		try 
